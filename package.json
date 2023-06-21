@@ -1,0 +1,26 @@
+{
+  "name": "refract_book",
+  "version": "1.0.0",
+  "description": "Part of FRACTAL Refract Book project",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "next": "^13.4.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint": "^8.43.0",
+    "eslint-plugin-react": "^7.32.2",
+    "prettier-eslint": "^15.0.1",
+    "sass": "^1.63.5"
+  }
+}
