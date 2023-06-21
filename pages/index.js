@@ -4,15 +4,27 @@ import Typography from '@mui/material/Typography';
 import ProTip from '../src/ProTip';
 import Box from '@mui/material/Box';
 import Copyright from '../src/Copyright';
+import Head from 'next/head';
+import { Button } from '@mui/material';
+import styles from '../styles/landing.module.scss';
 
 export default function Home() {
   return (
-    <Box>
-        <Typography variant='h1' component='p'>Let's gone with h1</Typography>
-        <Container>
-            <ProTip />
+    <div>
+      <Head>
+        <title>Expense Tracker</title>
+      </Head>
+
+      <main>
+        <Container className={styles.container}>
+          <Typography variant="h1">Welcome to Expense Tracker!</Typography>
+          <Typography variant="h2">Add, view, edit, and delete expenses</Typography>
+          <div className={styles.buttons}>
+            <Button variant="contained" color="secondary">
+              Login / Register
+            </Button>
+          </div>
         </Container>
-        <Copyright />
-    </Box>
-  );
+      </main>
+    </div>);
 }
