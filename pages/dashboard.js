@@ -2,17 +2,14 @@ import React from 'react';
 import { Typography, Button } from '@mui/material';
 import styles from '../styles/dashboard.module.scss';
 import Head from 'next/head';
+import ButtonNavBar from '../components/navbar';
 
 const Dashboard = ({ userEmail, onSignOut }) => {
   return (
     <div>
-        <Head>Bookeeper</Head>
-      <div className={styles.ribbon}>
-        <Typography variant="subtitle1">{userEmail}</Typography>
-        <Button variant="contained" color="secondary" onClick={onSignOut}>
-          Sign Out
-        </Button>
-      </div>
+      <Head><title>Bookeeper</title></Head>
+
+      <ButtonNavBar />
       <div>
         <Button variant='contained' color='secondary'>Book</Button>
       </div>
