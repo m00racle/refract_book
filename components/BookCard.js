@@ -9,10 +9,10 @@ export default function BookCard() {
         <Grid item xs={4}>
             <Paper elevation={3} >
                 <Box display="flex" justifyContent="space-between">
-                    <Typography variant='subtitle' component='h2'>Book1</Typography>
+                    <Typography variant='subtitle' component='h2' marginLeft={"1em"}>Book1</Typography>
                     <Box>
-                        <Button variant='contained' xs={{ margin:"2em"}}><ModeEditOutlineIcon/></Button>
-                        <Button variant='contained' xs={{ margin:"5em"}}><DeleteForeverIcon /></Button>
+                        <Button sx={{ bgcolor: 'background.paper'}}><ModeEditOutlineIcon/></Button>
+                        <Button variant='contained'><DeleteForeverIcon /></Button>
                     </Box>
                 </Box>
             </Paper>
