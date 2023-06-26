@@ -8,6 +8,8 @@ import { Box, Button, Typography } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { useState } from 'react';
 import ModalAddBook from './ModalAddBook';
+import Fab from '@mui/material/Fab';
+import AddIcon from '@mui/icons-material/Add';
 
 export default function AddBook() {
     const [openModal, setOpenModal] = useState(false);
@@ -31,7 +33,7 @@ export default function AddBook() {
             <Paper elevation={3} >
                 <Box paddingX={"1em"}>
                     <Typography variant='subtitle' component='h2'>Add a Book</Typography>
-                    <Button variant='contained' sx={{margin:'1em'}} onClick={handleAddBookClick}><AddCircleOutlineIcon sx={{width: '1em'}}/></Button>
+                    <Fab color='secondary' aria-label='add book' onClick={handleAddBookClick} sx={{margin: "2em"}}><AddIcon /></Fab>
                     <ModalAddBook open={openModal} onClose={handleCloseModal} modalState={modalState} />
                 </Box>
             </Paper>

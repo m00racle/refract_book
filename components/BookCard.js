@@ -3,6 +3,7 @@ import Grid from '@mui/material/Grid';
 import { Box, Button, Typography } from '@mui/material';
 import ModeEditOutlineIcon from '@mui/icons-material/ModeEditOutline';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import Fab from '@mui/material/Fab';
 
 export default function BookCard() {
     return (
@@ -11,8 +12,10 @@ export default function BookCard() {
                 <Box display="flex" justifyContent="space-between">
                     <Typography variant='subtitle' component='h2' marginLeft={"1em"}>Book1</Typography>
                     <Box>
-                        <Button sx={{ bgcolor: 'background.paper'}}><ModeEditOutlineIcon/></Button>
-                        <Button variant='contained'><DeleteForeverIcon /></Button>
+                        
+                        <Fab color='primary' aria-label='edit book' sx={{margin: "1em"}}><ModeEditOutlineIcon /></Fab>
+                        
+                        <Fab color='secondary' aria-label='delete book' sx={{margin: "1em"}}><DeleteForeverIcon /></Fab>
                     </Box>
                 </Box>
             </Paper>
