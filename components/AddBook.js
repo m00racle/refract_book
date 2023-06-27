@@ -10,22 +10,18 @@ import { useState } from 'react';
 import ModalAddBook from './ModalAddBook';
 import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
+import DialogAddBook from './DialogAddBook';
 
 export default function AddBook() {
-    const [openModal, setOpenModal] = useState(false);
-    const [modalState, setModalState] = useState('');
-
-    const handleOpenModal = () => {
-        setOpenModal(true);
-    };
-
-    const handleCloseModal = () => {
-        setOpenModal(false);
-    };
+    
+    const [openAddDialog, setOpenAddDialog] = useState(false);
 
     const handleAddBookClick = () => {
-        setModalState('Add new book');
-        handleOpenModal();
+        setOpenAddDialog(true);
+    };
+
+    const handleAddBookClose = () => {
+        setOpenAddDialog(false);
     };
 
     return (
@@ -34,7 +30,7 @@ export default function AddBook() {
                 <Box paddingX={"1em"}>
                     <Typography variant='subtitle' component='h2'>Add a Book</Typography>
                     <Fab color='secondary' aria-label='add book' onClick={handleAddBookClick} sx={{margin: "2em"}}><AddIcon /></Fab>
-                    <ModalAddBook open={openModal} onClose={handleCloseModal} modalState={modalState} />
+                    <DialogAddBook addDialogState={openAddDialog} handleClose={handleAddBookClose}/>
                 </Box>
             </Paper>
         </Grid>
