@@ -4,10 +4,8 @@ Component to add new book for the user
 
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
-import { Box, Button, Typography } from '@mui/material';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import { Box, Typography } from '@mui/material';
 import { useState } from 'react';
-import ModalAddBook from './ModalAddBook';
 import Fab from '@mui/material/Fab';
 import AddIcon from '@mui/icons-material/Add';
 import DialogAddBook from './DialogAddBook';
