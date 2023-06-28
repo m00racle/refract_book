@@ -13,14 +13,23 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
     
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
-    const [switchedOffEmail, setSwitchedOffEmail] = useState(false); //<-- TODO: change the switchOffEmail to switchOnEmail
-    const [emailEnabled, setEmailEnabled] = useState(true);
+    const [switchBookEmail, setSwitchBookEmail] = useState(false);
+    const [emailFieldEnabled, setEmailFieldEnabled] = useState(true);
 
     // TODO: make handle local close to make the switch back to off and clear the email address
 
     const handleNameChange = (event) => {
         setName(event.target.value);
     }
+
+    const resetAddBookForm = () => {
+        // reset all fields in the addBook dialog content
+        setName('');
+        setEmail('');
+        setEmailFieldEnabled(true);
+        setSwitchBookEmail(false);
+        handleClose();
+    };
 
     // TODO: input text field address?
 
@@ -29,14 +38,14 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
     // TODO: input text field NPWP
 
     const handleSwitcedEmailChange = (event) => {
-        setSwitchedOffEmail(event.target.checked);
-        if (!switchedOffEmail) { //<-- TODO: change to switchOnEmail
-            setEmail('default@gmail.com');
-            // TODO: change this later to user email from database
-            setEmailEnabled(false)
-        } else {
+        setSwitchBookEmail(event.target.checked);
+        if (switchBookEmail) {
             setEmail('');
-            setEmailEnabled(true);
+            setEmailFieldEnabled(true);
+        } else {
+            setEmail('default@gmail.com');
+            // TODO: change this to user email taken from auth
+            setEmailFieldEnabled(false);
         }
     };
 
@@ -51,16 +60,12 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         // TODO: change this to the process of adding book to database
         console.log(name);
         console.log(email);
-        setName('')
-        setEmail('');
-        handleClose();
-        setEmailEnabled(true);
-        setSwitchedOffEmail(false);
+        resetAddBookForm();
     };
 
     return (
         <div>
-            <Dialog open={addDialogState} onClose={handleClose}>
+            <Dialog open={addDialogState} onClose={resetAddBookForm}>
                 <DialogTitle>Add New Book</DialogTitle>
                 
                 <DialogContent>
@@ -75,6 +80,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                         type='text'
                         fullWidth
                         variant='standard'
+                        required
                         value={name}
                         onChange={handleNameChange}
                     />
@@ -85,14 +91,15 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                         type='email'
                         fullWidth
                         variant='standard'
+                        required
                         value={email}
                         onChange={handleEmailChange}
-                        disabled={!emailEnabled}
+                        disabled={!emailFieldEnabled}
                     />
                     <FormControlLabel label="use user email" control={<Switch onChange={handleSwitcedEmailChange}/>} />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button onClick={resetAddBookForm}>Cancel</Button>
                     <Button onClick={handleSubmit}>Submit</Button>
                 </DialogActions>
             </Dialog>
