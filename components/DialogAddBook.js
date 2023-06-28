@@ -149,13 +149,12 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                         multiline
                         value={address}
                         onChange={handleAddressChange}
-                        sx={{marginBottom: "2em"}}
                     />
                     <FormControl 
                         fullWidth
                         error={formError && !companyTypes.includes(selectedCompanyType)}
                         helperText={formError && !companyTypes.includes(selectedCompanyType) ? "Pilihan tipe perusahaan salah" : "Pilih tipe perusahaan anda"}
-                        sx={{marginBottom: "1em"}}
+                        sx={{marginY: "1em"}}
                     >
                         <InputLabel id="select-company-type-label">Pilih Tipe Perusahaan:</InputLabel>
                         <Select
