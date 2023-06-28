@@ -13,6 +13,8 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
     
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
+    const [address, setAddress] = useState('');
+    const [npwp, setNpwp] = useState('');
     const [switchBookEmail, setSwitchBookEmail] = useState(false);
     const [emailFieldEnabled, setEmailFieldEnabled] = useState(true);
     const [formError, setFormError] = useState(false);
@@ -26,6 +28,10 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         setEmailFieldEnabled(true);
         setSwitchBookEmail(false);
         setFormError(false);
+        setAddress('');
+        setNpwp('');
+
+        // close the dialog:
         handleClose();
     };
 
@@ -38,6 +44,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
     };
 
     const validateForm = (nameSample, emailSample) => {
+        // validate: name is not empty and email is pass the regex test
         return (nameSample.trim() !== '' && validateEmail(emailSample));
     };
 
@@ -45,9 +52,15 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         setName(event.target.value);
     }
 
-    // TODO: input text field address?
+    //  input text field address?
+    const handleAddressChange = (event) => {
+        setAddress(event.target.value);
+    };
 
-    // TODO: input text field NPWP
+    // : input text field NPWP
+    const handleNpwpChange = (event) => {
+        setNpwp(event.target.value);
+    };
 
     const handleSwitcedEmailChange = (event) => {
         setSwitchBookEmail(event.target.checked);
@@ -56,23 +69,23 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
             setEmailFieldEnabled(true);
         } else {
             setEmail('default@gmail.com');
-            // TODO: change this to user email taken from auth
+            
             setEmailFieldEnabled(false);
         }
     };
 
     const handleEmailChange = (event) => {
-        // TODO: add check box whether the book use user email instead.
+        
         setEmail(event.target.value);
     };
-
-    // TODO: validate all inputs
 
     const handleSubmit = () => {
         // TODO: change this to the process of adding book to database
         if (validateForm(name, email)) {
-            console.log(name);
-            console.log(email);
+            console.log("nama perusahan:", name);
+            console.log("email perusahaan: ", email);
+            console.log("Alamat: ", address);
+            console.log("NPWP: ", npwp);
             resetAddBookForm();
         } else {
             setFormError(true);
@@ -94,7 +107,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                         autoFocus
                         margin='dense'
                         id='bookname'
-                        label="Book Name"
+                        label="Nama Perusahaan"
                         type='text'
                         fullWidth
                         variant='standard'
@@ -102,12 +115,12 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                         value={name}
                         onChange={handleNameChange}
                         error={formError && name.trim() === ''}
-                        helperText={formError && name.trim() === '' ? "Cannot be empty" : "fill the book name"}
+                        helperText={formError && name.trim() === '' ? "Harus diisi" : ""}
                     />
                     <TextField 
                         margin='dense'
                         id='useremail'
-                        label="Email Address"
+                        label="Email Perusahaan"
                         type='email'
                         fullWidth
                         variant='standard'
@@ -116,9 +129,27 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                         onChange={handleEmailChange}
                         disabled={!emailFieldEnabled}
                         error={formError && !validateEmail(email)}
-                        helperText={formError && !validateEmail(email) ? "fix the email format or use default user email" : "fill email or use user email"}
+                        helperText={formError && !validateEmail(email) ? "format email salah (saran: pakai email user)" : "isi email perusahaan atau pilih email user"}
                     />
-                    <FormControlLabel label="use user email" control={<Switch onChange={handleSwitcedEmailChange}/>} />
+                    <FormControlLabel label="pakai email user" control={<Switch onChange={handleSwitcedEmailChange}/>} />
+                    <TextField 
+                        id='address-multiline'
+                        label="Alamat Perusahaan"
+                        fullWidth
+                        multiline
+                        value={address}
+                        onChange={handleAddressChange}
+                    />
+                    <TextField 
+                        margin='dense'
+                        id='npwp'
+                        label="NPWP Perusahaan"
+                        fullWidth
+                        type='text'
+                        variant='standard'
+                        value={npwp}
+                        onChange={handleNpwpChange}
+                    />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={resetAddBookForm}>Cancel</Button>
