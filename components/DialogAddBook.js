@@ -15,12 +15,9 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
     const [name, setName] = useState('');
     const [switchBookEmail, setSwitchBookEmail] = useState(false);
     const [emailFieldEnabled, setEmailFieldEnabled] = useState(true);
+    const [formError, setFormError] = useState(false);
 
-    // TODO: make handle local close to make the switch back to off and clear the email address
-
-    const handleNameChange = (event) => {
-        setName(event.target.value);
-    }
+    // : make handle local close to make the switch back to off and clear the email address
 
     const resetAddBookForm = () => {
         // reset all fields in the addBook dialog content
@@ -28,12 +25,27 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         setEmail('');
         setEmailFieldEnabled(true);
         setSwitchBookEmail(false);
+        setFormError(false);
         handleClose();
     };
 
-    // TODO: input text field address?
+    // validate
+    
+    const validateEmail = (sample) => {
+        // Regular expression for email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(sample);
+    };
 
-    // TODO: input drop down industry type
+    const validateForm = (nameSample, emailSample) => {
+        return (nameSample.trim() !== '' && validateEmail(emailSample));
+    };
+
+    const handleNameChange = (event) => {
+        setName(event.target.value);
+    }
+
+    // TODO: input text field address?
 
     // TODO: input text field NPWP
 
@@ -58,9 +70,15 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
 
     const handleSubmit = () => {
         // TODO: change this to the process of adding book to database
-        console.log(name);
-        console.log(email);
-        resetAddBookForm();
+        if (validateForm(name, email)) {
+            console.log(name);
+            console.log(email);
+            resetAddBookForm();
+        } else {
+            setFormError(true);
+            return;
+        }
+        
     };
 
     return (
@@ -83,6 +101,8 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                         required
                         value={name}
                         onChange={handleNameChange}
+                        error={formError && name.trim() === ''}
+                        helperText={formError && name.trim() === '' ? "Cannot be empty" : "fill the book name"}
                     />
                     <TextField 
                         margin='dense'
@@ -95,6 +115,8 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                         value={email}
                         onChange={handleEmailChange}
                         disabled={!emailFieldEnabled}
+                        error={formError && !validateEmail(email)}
+                        helperText={formError && !validateEmail(email) ? "fix the email format or use default user email" : "fill email or use user email"}
                     />
                     <FormControlLabel label="use user email" control={<Switch onChange={handleSwitcedEmailChange}/>} />
                 </DialogContent>
