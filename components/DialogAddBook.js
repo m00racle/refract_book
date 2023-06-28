@@ -6,7 +6,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { FormControlLabel, Switch } from '@mui/material';
+import { FormControl, FormControlLabel, InputLabel, MenuItem, Switch, Select } from '@mui/material';
 
 export default function DialogAddBook({ addDialogState, handleClose }) {
     // build dialog when user click add book button
@@ -18,6 +18,8 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
     const [switchBookEmail, setSwitchBookEmail] = useState(false);
     const [emailFieldEnabled, setEmailFieldEnabled] = useState(true);
     const [formError, setFormError] = useState(false);
+    const [selectedCompanyType, setSelectedCompanyType] = useState('');
+    const companyTypes = ['Perorangan', 'Firma', 'Komanditer', 'Perseroan'];
 
     // : make handle local close to make the switch back to off and clear the email address
 
@@ -30,6 +32,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         setFormError(false);
         setAddress('');
         setNpwp('');
+        setSelectedCompanyType('');
 
         // close the dialog:
         handleClose();
@@ -43,14 +46,20 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         return emailRegex.test(sample);
     };
 
-    const validateForm = (nameSample, emailSample) => {
+    const validateForm = (nameSample, emailSample, typeSample) => {
         // validate: name is not empty and email is pass the regex test
-        return (nameSample.trim() !== '' && validateEmail(emailSample));
+        return (nameSample.trim() !== '' 
+            && validateEmail(emailSample)
+            && companyTypes.includes(typeSample));
     };
 
     const handleNameChange = (event) => {
         setName(event.target.value);
     }
+
+    const handleCompanyTypeChange = (event) => {
+        setSelectedCompanyType(event.target.value);
+    };
 
     //  input text field address?
     const handleAddressChange = (event) => {
@@ -81,10 +90,11 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
 
     const handleSubmit = () => {
         // TODO: change this to the process of adding book to database
-        if (validateForm(name, email)) {
+        if (validateForm(name, email, selectedCompanyType)) {
             console.log("nama perusahan:", name);
             console.log("email perusahaan: ", email);
             console.log("Alamat: ", address);
+            console.log("Tipe Perusahaan: ", selectedCompanyType)
             console.log("NPWP: ", npwp);
             resetAddBookForm();
         } else {
@@ -139,7 +149,28 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                         multiline
                         value={address}
                         onChange={handleAddressChange}
+                        sx={{marginBottom: "2em"}}
                     />
+                    <FormControl 
+                        fullWidth
+                        error={formError && !companyTypes.includes(selectedCompanyType)}
+                        helperText={formError && !companyTypes.includes(selectedCompanyType) ? "Pilihan tipe perusahaan salah" : "Pilih tipe perusahaan anda"}
+                        sx={{marginBottom: "1em"}}
+                    >
+                        <InputLabel id="select-company-type-label">Pilih Tipe Perusahaan:</InputLabel>
+                        <Select
+                            labelId="select-company-type-label"
+                            id='company-type-selected'
+                            value={selectedCompanyType}
+                            onChange={handleCompanyTypeChange}
+                        >
+                            {companyTypes.map((companyType, index) => (
+                                <MenuItem key={index} value={companyType}>
+                                    {companyType}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
                     <TextField 
                         margin='dense'
                         id='npwp'
