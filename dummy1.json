@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "nama": "ABC Company",
+    "email": "abc@example.com",
+    "alamat": "123 Main St, City",
+    "tipe": "Perorangan",
+    "npwp": "12345"
+  },
+  {
+    "id": 2,
+    "nama": "XYZ Inc.",
+    "email": "xyz@example.com",
+    "alamat": "456 Market St, City",
+    "tipe": "Firma",
+    "npwp": "67890"
+  },
+  {
+    "id": 3,
+    "nama": "DEF Corporation",
+    "email": "def@example.com",
+    "alamat": "789 Elm St, City",
+    "tipe": "Komanditer",
+    "npwp": "54321"
+  },
+  {
+    "id": 4,
+    "nama": "PQR Ltd.",
+    "email": "pqr@example.com",
+    "alamat": "987 Oak St, City",
+    "tipe": "Perseroan",
+    "npwp": "09876"
+  }
+]
