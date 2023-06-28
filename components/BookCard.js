@@ -23,6 +23,9 @@ export default function BookCard() {
         // handle when user click Yes sure button in delete dialog
         // TODO: change with the actual delete to the database
         console.log("delete the book");
+        
+        // close the dialog
+        handleDeleteDialogClose();
     };
 
     return (
@@ -56,7 +59,7 @@ export default function BookCard() {
                                 <Button onClick={handleDeleteYesClick}>Yes, delete</Button>
                             </DialogActions>
                         </Dialog>
-                        
+
                     </Stack>
                 </Box>
             </Paper>
