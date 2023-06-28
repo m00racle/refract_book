@@ -2,7 +2,7 @@ import React from 'react';
 import { Container, Grid, Paper, Typography } from '@mui/material';
 import Head from 'next/head';
 import NavBar from '../components/navbar';
-import BookCard from '../components/bookcard';
+import BookCard from '../components/BookCard';
 import AddBook from '../components/AddBook';
 
 const Dashboard = ({ userEmail, onSignOut }) => {
