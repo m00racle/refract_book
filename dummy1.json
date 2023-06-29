@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "name": "ABC Company",
+    "email": "abc@example.com",
+    "address": "123 Main St, City",
+    "selectedCompanyTypes": "Perorangan",
+    "npwp": "12345"
+  },
+  {
+    "id": 2,
+    "name": "XYZ Inc.",
+    "email": "xyz@example.com",
+    "address": "456 Market St, City",
+    "selectedCompanyTypes": "Firma",
+    "npwp": "67890"
+  },
+  {
+    "id": 3,
+    "name": "DEF Corporation",
+    "email": "def@example.com",
+    "address": "789 Elm St, City",
+    "selectedCompanyTypes": "Komanditer",
+    "npwp": "54321"
+  },
+  {
+    "id": 4,
+    "name": "PQR Ltd.",
+    "email": "pqr@example.com",
+    "address": "987 Oak St, City",
+    "selectedCompanyTypes": "Perseroan",
+    "npwp": "09876"
+  }
+]
