@@ -6,7 +6,7 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import Fab from '@mui/material/Fab';
 import { useState } from 'react';
 
-export default function BookCard({ bookId, bookData }) {
+export default function BookCard({ bookId, bookData, deleteFunc }) {
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
     const handleDeleteClick = () => {
@@ -23,6 +23,7 @@ export default function BookCard({ bookId, bookData }) {
         // handle when user click Yes sure button in delete dialog
         // TODO: change with the actual delete to the database
         console.log("delete the book");
+        deleteFunc(bookId);
         
         // close the dialog
         handleDeleteDialogClose();
