@@ -5,9 +5,15 @@ import ModeEditOutlineIcon from '@mui/icons-material/ModeEditOutline';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import Fab from '@mui/material/Fab';
 import { useState } from 'react';
+import { useRouter } from 'next/router';
 
 export default function BookCard({ bookId, bookData, deleteFunc }) {
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+    const router = useRouter();
+
+    const handleEditClick = () => {
+        router.push(`/book/${bookId}`);
+    };
 
     const handleDeleteClick = () => {
         // handle when the delete FAB is clicked:
@@ -36,7 +42,7 @@ export default function BookCard({ bookId, bookData, deleteFunc }) {
                     <Typography variant='subtitle' component='h2' marginLeft={"1em"}>{bookData.name}</Typography>
                     <Stack direction="row" spacing={"0.5em"}>
                         
-                        <Fab color='primary' aria-label='edit book' ><ModeEditOutlineIcon /></Fab>
+                        <Fab color='primary' aria-label='edit book' onClick={handleEditClick}><ModeEditOutlineIcon /></Fab>
                         
                         <Fab color='secondary' aria-label='delete book' onClick={handleDeleteClick}><DeleteForeverIcon /></Fab>
                         {/* Dialog for delete book confirmation */}
