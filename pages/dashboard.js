@@ -1,11 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Container, Grid, Paper, Typography } from '@mui/material';
 import Head from 'next/head';
 import NavBar from '../components/navbar';
 import BookCard from '../components/BookCard';
 import AddBook from '../components/AddBook';
+import dummies from '../dummy1.json';
 
 const Dashboard = ({ userEmail, onSignOut }) => {
+  const [books, setBooks] = useState(dummies);
+  const deleteBook = (deleteId) => {
+    // TODO: dummy test only to demonstrate delete and mapping of data
+    setBooks(books.filter(book => book.id !== deleteId));
+  };
+
   return (
     <>
       <Head><title>Dashboard</title></Head>
@@ -25,8 +32,9 @@ const Dashboard = ({ userEmail, onSignOut }) => {
           List of Books
         </Typography>
         <Grid container spacing={3}>
-          <BookCard />
-          <BookCard />
+          {books.map((book) => (
+            <BookCard key={book.id} bookId={book.id} bookData={book}/>
+          ))}
           <AddBook />
         </Grid>
       </Container>

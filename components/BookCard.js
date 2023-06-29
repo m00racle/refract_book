@@ -6,7 +6,7 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import Fab from '@mui/material/Fab';
 import { useState } from 'react';
 
-export default function BookCard() {
+export default function BookCard({ bookId, bookData }) {
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
     const handleDeleteClick = () => {
@@ -32,7 +32,7 @@ export default function BookCard() {
         <Grid item xs={4}>
             <Paper elevation={3} >
                 <Box display="flex" justifyContent="space-between">
-                    <Typography variant='subtitle' component='h2' marginLeft={"1em"}>Book1</Typography>
+                    <Typography variant='subtitle' component='h2' marginLeft={"1em"}>{bookData.name}</Typography>
                     <Stack direction="row" spacing={"0.5em"}>
                         
                         <Fab color='primary' aria-label='edit book' ><ModeEditOutlineIcon /></Fab>

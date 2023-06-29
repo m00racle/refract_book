@@ -1,34 +1,34 @@
 [
   {
     "id": 1,
-    "nama": "ABC Company",
+    "name": "ABC Company",
     "email": "abc@example.com",
-    "alamat": "123 Main St, City",
-    "tipe": "Perorangan",
+    "address": "123 Main St, City",
+    "selectedCompanyTypes": "Perorangan",
     "npwp": "12345"
   },
   {
     "id": 2,
-    "nama": "XYZ Inc.",
+    "name": "XYZ Inc.",
     "email": "xyz@example.com",
-    "alamat": "456 Market St, City",
-    "tipe": "Firma",
+    "address": "456 Market St, City",
+    "selectedCompanyTypes": "Firma",
     "npwp": "67890"
   },
   {
     "id": 3,
-    "nama": "DEF Corporation",
+    "name": "DEF Corporation",
     "email": "def@example.com",
-    "alamat": "789 Elm St, City",
-    "tipe": "Komanditer",
+    "address": "789 Elm St, City",
+    "selectedCompanyTypes": "Komanditer",
     "npwp": "54321"
   },
   {
     "id": 4,
-    "nama": "PQR Ltd.",
+    "name": "PQR Ltd.",
     "email": "pqr@example.com",
-    "alamat": "987 Oak St, City",
-    "tipe": "Perseroan",
+    "address": "987 Oak St, City",
+    "selectedCompanyTypes": "Perseroan",
     "npwp": "09876"
   }
 ]
