@@ -6,6 +6,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import Typography from '@mui/material/Typography';
 import { FormControl, FormControlLabel, InputLabel, MenuItem, Switch, Select } from '@mui/material';
 
 export default function DialogAddBook({ addDialogState, handleClose }) {
@@ -154,7 +155,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                         fullWidth
                         error={formError && !companyTypes.includes(selectedCompanyType)}
                         // WARNING: this form control can't have helperText so I omit it
-                        sx={{marginY: "1em"}}
+                        sx={{marginY: "0.5em"}}
                     >
                         <InputLabel id="select-company-type-label">Pilih Tipe Perusahaan:</InputLabel>
                         <Select
@@ -169,6 +170,11 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                                 </MenuItem>
                             ))}
                         </Select>
+                        {formError && !companyTypes.includes(selectedCompanyType) && (
+                            <Typography variant="caption" color="error">
+                                Pilih salah satu tipe perusahaan
+                            </Typography>
+                        )}
                     </FormControl>
                     <TextField 
                         margin='dense'
