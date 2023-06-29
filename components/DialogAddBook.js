@@ -153,7 +153,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                     <FormControl 
                         fullWidth
                         error={formError && !companyTypes.includes(selectedCompanyType)}
-                        helperText={formError && !companyTypes.includes(selectedCompanyType) ? "Pilihan tipe perusahaan salah" : "Pilih tipe perusahaan anda"}
+                        // WARNING: this form control can't have helperText so I omit it
                         sx={{marginY: "1em"}}
                     >
                         <InputLabel id="select-company-type-label">Pilih Tipe Perusahaan:</InputLabel>
