@@ -19,7 +19,7 @@ import { useRouter } from "next/router";
 export default function BookNavBar({ bookId }) {
     // navigation bar for specific book
     const router = useRouter();
-    const pages = ['transaction', 'documents', 'control'];
+    const pages = ['transaction', 'document', 'contact', 'report'];
     const [anchorElNav, setAnchorElNav] = useState(null);
 
     const handleOpenNavMenu = (event) => {

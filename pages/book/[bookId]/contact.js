@@ -1,22 +1,16 @@
 /*  
-page to handle transaction
+page to handle contact
 */
 
 import { useRouter } from "next/router";
 import Head from 'next/head';
 import PageNavBar from '../../../components/BookNavBar';
 
-export default function TransactionPage() {
+export default function DocumentPage() {
     const router = useRouter();
     const { bookId } = router.query;
     
     const formattedBookId = bookId ? bookId.toString() : '';
-
-    const formatNum = {
-        style: 'decimal',
-        useGrouping: true,
-        maximumFractionDigits: 2,
-    };
 
     return (
         <>
@@ -25,7 +19,7 @@ export default function TransactionPage() {
         </Head>
         <PageNavBar bookId={formattedBookId} />
         <div>
-            <h1>Transaction Book ID: {(bookId * 1234567 / 3).toLocaleString('id-ID', formatNum)}</h1>
+            <h1>Contact List for Book ID: {formattedBookId}</h1>
         </div>
         </>
     );
