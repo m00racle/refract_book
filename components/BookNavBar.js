@@ -34,7 +34,12 @@ export default function BookNavBar({ bookId }) {
         // handle push target
         router.push(`/book/${bookId}/${target}`);
         handleCloseNavMenu();
-    }
+    };
+
+    const handleClickDashboard = () => {
+        router.push('/dashboard');
+        handleCloseNavMenu();
+    };
 
     return (
         <AppBar position="static">
@@ -89,10 +94,13 @@ export default function BookNavBar({ bookId }) {
                         }}
                         >
                         {pages.map((page) => (
-                            <MenuItem key={page} onClick={handleCloseNavMenu}>
+                            <MenuItem key={page} onClick={() => handlePush(page)}>
                             <Typography textAlign="center">{page}</Typography>
                             </MenuItem>
                         ))}
+                        <MenuItem onClick={handleClickDashboard}>
+                            <Typography textAlign="center">Dashboard</Typography>
+                            </MenuItem>
                         </Menu>
                     </Box>
                     
@@ -106,6 +114,12 @@ export default function BookNavBar({ bookId }) {
                             {page}
                         </Button>
                         ))}
+                        <Button
+                            onClick={handleClickDashboard}
+                            sx={{ my: 2, color: 'white', display: 'block' }}
+                        >
+                            Dashboard
+                        </Button>
                     </Box>
                 </Toolbar>
             </Container>
