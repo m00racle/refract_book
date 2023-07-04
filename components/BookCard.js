@@ -44,7 +44,7 @@ export default function BookCard({ bookId, bookData, deleteFunc }) {
                         
                         <Fab color='primary' aria-label='edit book' onClick={handleEditClick}><ModeEditOutlineIcon /></Fab>
                         
-                        <Fab color='secondary' aria-label='delete book' onClick={handleDeleteClick}><DeleteForeverIcon /></Fab>
+                        <Fab data-testid="delete-book-fab" color='secondary' aria-label='delete book' onClick={handleDeleteClick}><DeleteForeverIcon /></Fab>
                         {/* Dialog for delete book confirmation */}
                         <Dialog
                             open={openDeleteDialog}
@@ -52,12 +52,12 @@ export default function BookCard({ bookId, bookData, deleteFunc }) {
                             aria-labelledby='alert-delete-dialog-title'
                             aria-describedby='alert-delete-dialog-description'
                         >
-                            <DialogTitle id="alert-delete-dialog-title">
+                            <DialogTitle id="alert-delete-dialog-title" data-testid="alert-delete-dialog-title" >
                                 {/* TODO: insert string literal of the Book name or id */}
                                 {"Delete the book?"}
                             </DialogTitle>
                             <DialogContent>
-                                <DialogContentText id="alert-delete-dialog-description">
+                                <DialogContentText id="alert-delete-dialog-description" data-testid="alert-delete-dialog-description" >
                                     This action is irreversible, Once the book is deleted you cannot restore it.
                                 </DialogContentText>
                             </DialogContent>
