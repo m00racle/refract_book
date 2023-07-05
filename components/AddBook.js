@@ -27,7 +27,15 @@ export default function AddBook() {
             <Paper elevation={3} >
                 <Box paddingX={"1em"}>
                     <Typography variant='subtitle' component='h2'>Add a Book</Typography>
-                    <Fab color='secondary' aria-label='add book' onClick={handleAddBookClick} sx={{margin: "2em"}}><AddIcon /></Fab>
+                    <Fab 
+                        data-testid="add-book-fab" 
+                        color='secondary' 
+                        aria-label='add book' 
+                        onClick={handleAddBookClick} 
+                        sx={{margin: "2em"}}
+                    >
+                        <AddIcon />
+                    </Fab>
                     <DialogAddBook addDialogState={openAddDialog} handleClose={handleAddBookClose}/>
                 </Box>
             </Paper>

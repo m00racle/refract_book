@@ -117,6 +117,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                     <TextField 
                         autoFocus
                         margin='dense'
+                        data-testid="bookname"
                         id='bookname'
                         label="Nama Perusahaan"
                         type='text'
@@ -131,6 +132,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                     <TextField 
                         margin='dense'
                         id='useremail'
+                        data-testid="useremail"
                         label="Email Perusahaan"
                         type='email'
                         fullWidth
@@ -145,6 +147,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                     <FormControlLabel label="pakai email user" control={<Switch onChange={handleSwitcedEmailChange}/>} />
                     <TextField 
                         id='address-multiline'
+                        data-testid="address-multiline"
                         label="Alamat Perusahaan"
                         fullWidth
                         multiline
@@ -157,7 +160,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                         // WARNING: this form control can't have helperText so I omit it
                         sx={{marginY: "0.5em"}}
                     >
-                        <InputLabel id="select-company-type-label">Pilih Tipe Perusahaan:</InputLabel>
+                        <InputLabel id="select-company-type-label" data-testid="select-company-type-label" >Pilih Tipe Perusahaan:</InputLabel>
                         <Select
                             labelId="select-company-type-label"
                             id='company-type-selected'
@@ -171,7 +174,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                             ))}
                         </Select>
                         {formError && !companyTypes.includes(selectedCompanyType) && (
-                            <Typography variant="caption" color="error">
+                            <Typography data-testid="error-helper-text-comp-type" variant="caption" color="error">
                                 Pilih salah satu tipe perusahaan
                             </Typography>
                         )}
@@ -179,6 +182,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                     <TextField 
                         margin='dense'
                         id='npwp'
+                        data-testid='npwp'
                         label="NPWP Perusahaan"
                         fullWidth
                         type='text'
