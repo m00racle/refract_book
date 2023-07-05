@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import AddBook from '../components/AddBook';
 import '@testing-library/jest-dom/extend-expect';
+import userEvent from '@testing-library/user-event'
 
 describe('AddBook component', () => {
   it('opens the dialog with specific input fields when add book button is clicked', () => {
@@ -13,18 +14,12 @@ describe('AddBook component', () => {
 
     // Assert
     const bookNameInput = screen.getByTestId('bookname');
-    // const userEmailInput = screen.getByLabelText('Email Perusahaan');
-    // const switchEmailCheckbox = screen.getByLabelText('pakai email user');
-    // const addressInput = screen.getByLabelText('Alamat Perusahaan');
-    // const companyTypeSelect = screen.getByLabelText('Pilih Tipe Perusahaan:');
-    // const npwpInput = screen.getByLabelText('NPWP Perusahaan');
-
+    const emailInput = screen.getByTestId("useremail");
+    const addressInput = screen.getByTestId("address-multiline");
+    
     expect(bookNameInput).toBeInTheDocument();
-    // expect(userEmailInput).toBeInTheDocument();
-    // expect(switchEmailCheckbox).toBeInTheDocument();
-    // expect(addressInput).toBeInTheDocument();
-    // expect(companyTypeSelect).toBeInTheDocument();
-    // expect(npwpInput).toBeInTheDocument();
+    expect(emailInput).toBeInTheDocument();
+    expect(addressInput).toBeInTheDocument();
   });
 
   // Other tests...
