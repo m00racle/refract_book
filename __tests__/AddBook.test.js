@@ -2,7 +2,6 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import AddBook from '../components/AddBook';
 import '@testing-library/jest-dom/extend-expect';
-import userEvent from '@testing-library/user-event'
 
 describe('AddBook component', () => {
   it('opens the dialog with specific input fields when add book button is clicked', () => {
