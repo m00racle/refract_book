@@ -16,3 +16,7 @@ yarn-error.log*
 
 # Next.js
 /.next
+
+# firebase
+ui-debug.log
+firestore-debug.log
