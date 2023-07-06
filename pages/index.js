@@ -27,6 +27,8 @@ const uiConfig = {
 export default function Home() {
   // what is the auth state? is it still loading?
   const { authUser, isLoading } = useAuth();
+  // NOTE: from useAuth hook in ../firebase/auth took only authUser and isLoading 
+  // no SignOut button here
 
   const router = useRouter();
   

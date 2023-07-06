@@ -1,12 +1,20 @@
-import React, { useState } from 'react';
-import { Container, Grid, Paper, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { CircularProgress, Container, Grid, Typography } from '@mui/material';
 import Head from 'next/head';
 import NavBar from '../components/navbar';
 import BookCard from '../components/BookCard';
 import AddBook from '../components/AddBook';
 import dummies from '../dummy1.json';
+import { useAuth } from '../firebase/auth';
+import { useRouter } from 'next/router';
 
-const Dashboard = ({ userEmail, onSignOut }) => {
+const Dashboard = () => {
+  // state for user auth :
+  const { authUser, isLoading } = useAuth();
+
+  // prepare router to redirect user if not signed in
+  const router = useRouter();
+
   // TODO: useState here is for dummy test only change later with the real QUERY transaction from DATABASE
   const [books, setBooks] = useState(dummies);
   const deleteBook = (deleteId) => {
@@ -16,8 +24,17 @@ const Dashboard = ({ userEmail, onSignOut }) => {
     setBooks(books.filter(book => book.id !== deleteId));
   };
 
-  return (
-    <>
+  // listen for changes to loading or whether authUser !== null, redirect if necessary
+  useEffect(() => {
+    if (!isLoading && !authUser) {
+      router.push('/');
+    }
+  }, [authUser, isLoading]);
+
+  return ((!authUser) ? 
+    <CircularProgress color='inherit' sx={{marginLeft: '50%', marginTop: '25%'}}/>
+    :
+    <div>
       <Head><title>Dashboard</title></Head>
 
       <NavBar />
@@ -43,7 +60,7 @@ const Dashboard = ({ userEmail, onSignOut }) => {
         </Grid>
       </Container>
       
-    </>
+    </div>
   );
 };
 
