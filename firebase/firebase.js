@@ -23,8 +23,8 @@ export const db = getFirestore(app);
 export const storage = getStorage(app);
 
 // Check if running on localhost
-if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-  console.log("localhost detected, initializing emulators");
+if (process.env.NEXT_PUBLIC_FIREBASE_EMULATOR === 'true') {
+  console.log("LOG: localhost detected, initializing emulators");
   
   // Initialize auth emulator
   connectAuthEmulator(auth, "http://127.0.0.1:9099");
