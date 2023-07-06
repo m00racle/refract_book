@@ -9,7 +9,7 @@ import { useRouter } from 'next/router';
 import { auth } from '../firebase/firebase';
 import { useAuth } from '../firebase/auth';
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth'
-import { GoogleAuthProvider } from 'firebase/auth';
+import { EmailAuthProvider, GoogleAuthProvider } from 'firebase/auth';
 
 // when user logged in redirect to dashboard:
 const REDIRECT_PAGE = '/dashboard';
@@ -19,7 +19,8 @@ const uiConfig = {
   signInFlow: 'popup',
   signInSuccessUrl: REDIRECT_PAGE,
   signInOptions: [
-    GoogleAuthProvider.PROVIDER_ID
+    GoogleAuthProvider.PROVIDER_ID,
+    EmailAuthProvider.PROVIDER_ID
   ],
 };
 
