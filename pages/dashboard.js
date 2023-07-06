@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CircularProgress, Container, Grid, Paper, Typography } from '@mui/material';
+import { CircularProgress, Container, Grid, Typography } from '@mui/material';
 import Head from 'next/head';
 import NavBar from '../components/navbar';
 import BookCard from '../components/BookCard';

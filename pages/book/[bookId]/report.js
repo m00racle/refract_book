@@ -1,12 +1,14 @@
 /*  
 page to handle report
 */
-import * as React from 'react';
+
 import PropTypes from 'prop-types';
 import { useRouter } from "next/router";
 import Head from 'next/head';
 import PageNavBar from '../../../components/BookNavBar';
-import { Box, Tab, Tabs, Typography } from "@mui/material";
+import { Box, Tab, Tabs, Typography, CircularProgress } from "@mui/material";
+import { useAuth } from '../../../firebase/auth';
+import { useEffect, useState } from 'react';
 
 
 function ReportPanel(props) {
@@ -46,7 +48,7 @@ function allyProps(index) {
 export default function DocumentPage() {
     const router = useRouter();
     const { bookId } = router.query;
-    const [value, setValue] = React.useState(0);
+    const [value, setValue] = useState(0);
 
     const handleChange = (event, newValue) => {
         // NOTE: the newValue argument is only available for Tabs React component
@@ -56,7 +58,19 @@ export default function DocumentPage() {
     
     const formattedBookId = bookId ? bookId.toString() : '';
 
-    return (
+    // auth verification
+    const { authUser, isLoading } = useAuth();
+
+    // listen to isLoading and authUser changes:
+    useEffect(() => {
+        if (!isLoading && !authUser) {
+        router.push('/');
+        }
+    }, [authUser, isLoading]);
+
+    return ((!authUser) ?
+        <CircularProgress color="inherit" sx={{ marginLeft: '50%', marginTop: '25%' }}/>
+        :
         <>
         <Head>
             <title>{`Transaction ${formattedBookId}`}</title>
