@@ -6,8 +6,11 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
+import { useAuth } from '../firebase/auth';
 
 export default function NavBar() {
+  const { authUser, signOut } = useAuth();
+  // NOTE: took authUser.email to be displayed on nav bar
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
@@ -19,12 +22,13 @@ export default function NavBar() {
             aria-label="menu"
             sx={{ mr: 2 }}
           >
-            <MenuIcon />
+            {/* Menu icon temporary disabled (unused) */}
+            {/* <MenuIcon /> */}
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 2 }}>
-            user@gmail.com
+            {authUser?.email}
           </Typography>
-          <Button variant='contained' color='secondary'>Sign Out</Button>
+          <Button variant='contained' color='secondary' onClick={signOut}>Sign Out</Button>
         </Toolbar>
       </AppBar>
     </Box>
