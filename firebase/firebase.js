@@ -6,6 +6,7 @@ import { getAuth, connectAuthEmulator } from 'firebase/auth';
 import { getStorage, connectStorageEmulator } from 'firebase/storage';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 
+
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -16,23 +17,21 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-    console.log("localhost detected, init emulator")
-    // init auth emulator
-    const auth = getAuth();
-    connectAuthEmulator(auth, "http://127.0.0.1:9099");
+export const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
 
-    // init firestore emulator
-    const db = getFirestore();
-    connectFirestoreEmulator(db, '127.0.0.1', 8080);
+// Check if running on localhost
+if (process.env.NEXT_PUBLIC_FIREBASE_EMULATOR === 'true') {
+  console.log("LOG: localhost detected, initializing emulators");
+  
+  // Initialize auth emulator
+  connectAuthEmulator(auth, "http://127.0.0.1:9099");
 
-    // init storage emulator
-    const storage = getStorage();
-    connectStorageEmulator(storage, "127.0.0.1", 9199);
-} else {
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
+  // Initialize firestore emulator
+  connectFirestoreEmulator(db, '127.0.0.1', 8080);
+
+  // Initialize storage emulator
+  connectStorageEmulator(storage, "127.0.0.1", 9199);
 }
