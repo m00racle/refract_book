@@ -21,11 +21,18 @@ export default function useFirebaseAuth() {
     const [authUser, setAuthUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
+    const clear = () => {
+        // function to reset the authUser and isLoading
+        setAuthUser(null);
+        setIsLoading(false);
+    };
+
     // I need observer to handle user argument from onAuthStateChanged asynchrounously
     const authStateHandler = (user) => {
         // extract the user data (user id and email?)
         if (!user) {
-            // TODO: function to reset the authUser and isLoading to default values
+            // : function to reset the authUser and isLoading to default values
+            clear();
             return;
         }
 
