@@ -9,6 +9,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Typography from '@mui/material/Typography';
 import { FormControl, FormControlLabel, InputLabel, MenuItem, Switch, Select } from '@mui/material';
 import { useAuth } from '../firebase/auth';
+import { addBook } from '../firebase/firestore-book';
 
 export default function DialogAddBook({ addDialogState, handleClose }) {
     // build dialog when user click add book button
@@ -91,7 +92,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         setEmail(event.target.value);
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         // TODO: change this to the process of adding book to database
         if (validateForm(name, email, selectedCompanyType)) {
             console.log("nama perusahan:", name);
@@ -99,6 +100,13 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
             console.log("Alamat: ", address);
             console.log("Tipe Perusahaan: ", selectedCompanyType)
             console.log("NPWP: ", authUser?.uid);
+            const bookData = {
+                name, email, selectedCompanyType, npwp
+            };
+            await addBook(authUser?.uid, bookData).catch((err) => {
+                console.error("Failed to add book: ", err);
+            });
+
             resetAddBookForm();
         } else {
             setFormError(true);

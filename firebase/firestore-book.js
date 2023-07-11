@@ -1,5 +1,6 @@
-import { addDoc } from 'firebase/firestore';
+import { addDoc, collection, getDoc, getDocs, limit, orderBy, query, where } from 'firebase/firestore';
 import { db } from './firebase';
+import { el } from 'date-fns/locale';
 
 // TODO: manage books
 const BOOK_COLLECTION = 'books';
@@ -9,8 +10,45 @@ async function getBookId () {
     // use this to make new book id
 }
 
-export function addBook() {
+export async function addBook(uid, bookData) {
     // function to handle add new book to firestore
+    let book_id;
+    const bookIdQuery = query(
+        collection(db, BOOK_COLLECTION),
+        where('refs.user_id', '==', uid),
+        orderBy('refs.book_id', 'desc'),
+        limit(1)
+    );
+
+    const bookIdQuerySnapshot = await getDocs(bookIdQuery).catch((err) => {
+        console.error('Error querying books: ', err);
+        throw err;
+    });
+
+    if (bookIdQuerySnapshot.empty) {
+        // no book exist yet for this user
+        book_id = 1;
+    } else {
+        const lastBookId = bookIdQuerySnapshot.docs[0].data().refs.book_id;
+        book_id = lastBookId + 1;
+    }
+
+    // prepare the book doc daa
+    const bookDocData = {
+        refs: {
+            user_id: uid,
+            book_id
+        },
+        name: bookData.name,
+        email: bookData.email,
+        business_type: bookData.selectedCompanyType,
+        npwp: bookData.npwp
+    };
+
+    await addDoc(collection(db, BOOK_COLLECTION), bookDocData).catch((err) => {
+        console.error("Error adding book: ", err);
+        throw err;
+    });
 }
 
 export async function getAllBooks () {
