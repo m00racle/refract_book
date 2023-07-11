@@ -12,11 +12,14 @@ import MuiAlert from '@mui/material/Alert';
 import { FormControl, FormControlLabel, InputLabel, MenuItem, Switch, Select } from '@mui/material';
 import { useAuth } from '../firebase/auth';
 import { addBook } from '../firebase/firestore-book';
+import ErrorDialog from './ErrorDialog';
 
 export default function DialogAddBook({ addDialogState, handleClose }) {
     // build dialog when user click add book button
     const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [errorDialogOpen, setErrorDialogOpen] = useState(false);
     
+    const [errorMessage, setErrorMessage] = useState('');
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
     const [address, setAddress] = useState('');
@@ -103,6 +106,15 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         setSnackbarOpen(true);
     };
 
+    const handleOpenErrorDialog = (message) => {
+        setErrorMessage(message);
+        setErrorDialogOpen(true);
+    };
+
+    const handleCloseErrorDialog = () => {
+        setErrorDialogOpen(false);
+    };
+
     const handleSubmit = async () => {
         // TODO: change this to the process of adding book to database
         if (validateForm(name, email, selectedCompanyType)) {
@@ -116,15 +128,18 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
             };
             await addBook(authUser?.uid, bookData)
             .then(() => {
-                // TODO: handle snackbar
+                // : handle snackbar
                 handleSnackbar();
+                resetAddBookForm();
             })
             .catch((err) => {
-                console.error("Failed to add book: ", err);
-                // TODO: handle error dialog
+                
+                // : handle error dialog
+                const errMsg = `Failed to AddBook: ${err}`;
+                handleOpenErrorDialog(errMsg);
             });
 
-            resetAddBookForm();
+            
         } else {
             setFormError(true);
             return;
@@ -229,6 +244,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                     <Button onClick={handleSubmit}>Submit</Button>
                 </DialogActions>
             </Dialog>
+            <ErrorDialog open={errorDialogOpen} onClose={handleCloseErrorDialog} errorMessage={errorMessage} />
         </div>
     );
 }
