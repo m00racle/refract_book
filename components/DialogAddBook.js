@@ -8,6 +8,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Typography from '@mui/material/Typography';
 import { FormControl, FormControlLabel, InputLabel, MenuItem, Switch, Select } from '@mui/material';
+import { useAuth } from '../firebase/auth';
 
 export default function DialogAddBook({ addDialogState, handleClose }) {
     // build dialog when user click add book button
@@ -21,6 +22,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
     const [formError, setFormError] = useState(false);
     const [selectedCompanyType, setSelectedCompanyType] = useState('');
     const companyTypes = ['Perorangan', 'Firma', 'Komanditer', 'Perseroan'];
+    const { authUser, signOut } = useAuth();
 
     // : make handle local close to make the switch back to off and clear the email address
 
@@ -78,7 +80,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
             setEmail('');
             setEmailFieldEnabled(true);
         } else {
-            setEmail('default@gmail.com');
+            setEmail(authUser?.email);
             
             setEmailFieldEnabled(false);
         }
@@ -96,7 +98,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
             console.log("email perusahaan: ", email);
             console.log("Alamat: ", address);
             console.log("Tipe Perusahaan: ", selectedCompanyType)
-            console.log("NPWP: ", npwp);
+            console.log("NPWP: ", authUser?.uid);
             resetAddBookForm();
         } else {
             setFormError(true);
