@@ -7,12 +7,15 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Typography from '@mui/material/Typography';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 import { FormControl, FormControlLabel, InputLabel, MenuItem, Switch, Select } from '@mui/material';
 import { useAuth } from '../firebase/auth';
 import { addBook } from '../firebase/firestore-book';
 
 export default function DialogAddBook({ addDialogState, handleClose }) {
     // build dialog when user click add book button
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
     
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
@@ -92,6 +95,14 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         setEmail(event.target.value);
     };
 
+    const handleCloseSnackbar = () => {
+        setSnackbarOpen(false);
+    };
+    
+    const handleSnackbar = () => {
+        setSnackbarOpen(true);
+    };
+
     const handleSubmit = async () => {
         // TODO: change this to the process of adding book to database
         if (validateForm(name, email, selectedCompanyType)) {
@@ -103,8 +114,14 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
             const bookData = {
                 name, email, selectedCompanyType, npwp
             };
-            await addBook(authUser?.uid, bookData).catch((err) => {
+            await addBook(authUser?.uid, bookData)
+            .then(() => {
+                // TODO: handle snackbar
+                handleSnackbar();
+            })
+            .catch((err) => {
                 console.error("Failed to add book: ", err);
+                // TODO: handle error dialog
             });
 
             resetAddBookForm();
@@ -117,6 +134,12 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
 
     return (
         <div>
+            {/* Snackbar component */}
+            <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleCloseSnackbar}>
+                <MuiAlert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+                Book added successfully!
+                </MuiAlert>
+            </Snackbar>
             <Dialog open={addDialogState} onClose={resetAddBookForm}>
                 <DialogTitle>Add New Book</DialogTitle>
                 
