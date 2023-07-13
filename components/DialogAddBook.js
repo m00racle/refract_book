@@ -22,7 +22,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
     const [errorMessage, setErrorMessage] = useState('');
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
-    const [address, setAddress] = useState('');
+    const [initial, setInitial] = useState('');
     const [npwp, setNpwp] = useState('');
     const [switchBookEmail, setSwitchBookEmail] = useState(false);
     const [emailFieldEnabled, setEmailFieldEnabled] = useState(true);
@@ -40,7 +40,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         setEmailFieldEnabled(true);
         setSwitchBookEmail(false);
         setFormError(false);
-        setAddress('');
+        setInitial('');
         setNpwp('');
         setSelectedCompanyType('');
 
@@ -56,10 +56,11 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         return emailRegex.test(sample);
     };
 
-    const validateForm = (nameSample, emailSample, typeSample) => {
+    const validateForm = (nameSample, emailSample, typeSample, initialSample) => {
         // validate: name is not empty and email is pass the regex test
         return (nameSample.trim() !== '' 
             && validateEmail(emailSample)
+            && initialSample.trim() !== ''
             && companyTypes.includes(typeSample));
     };
 
@@ -71,9 +72,9 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         setSelectedCompanyType(event.target.value);
     };
 
-    //  input text field address?
-    const handleAddressChange = (event) => {
-        setAddress(event.target.value);
+    //  input text field initial?
+    const handleInitialChange = (event) => {
+        setInitial(event.target.value);
     };
 
     // : input text field NPWP
@@ -117,10 +118,10 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
 
     const handleSubmit = async () => {
         // TODO: change this to the process of adding book to database
-        if (validateForm(name, email, selectedCompanyType)) {
+        if (validateForm(name, email, selectedCompanyType, initial)) {
             console.log("nama perusahan:", name);
             console.log("email perusahaan: ", email);
-            console.log("Alamat: ", address);
+            console.log("Alamat: ", initial);
             console.log("Tipe Perusahaan: ", selectedCompanyType)
             console.log("NPWP: ", authUser?.uid);
             const bookData = {
@@ -194,13 +195,18 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                     />
                     <FormControlLabel label="pakai email user" control={<Switch onChange={handleSwitcedEmailChange}/>} />
                     <TextField 
-                        id='address-multiline'
-                        data-testid="address-multiline"
-                        label="Alamat Perusahaan"
+                        margin='dense'
+                        id='initial'
+                        data-testid="initial"
+                        label="Inisial Perusahaan"
+                        type='text'
                         fullWidth
-                        multiline
-                        value={address}
-                        onChange={handleAddressChange}
+                        variant='standard'
+                        required
+                        value={initial}
+                        onChange={handleInitialChange}
+                        error={formError && initial.trim() === ''}
+                        helperText={formError && initial.trim() === '' ? "Harus diisi" : ""}
                     />
                     <FormControl 
                         fullWidth
