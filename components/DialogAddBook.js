@@ -125,7 +125,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
             console.log("Tipe Perusahaan: ", selectedCompanyType)
             console.log("NPWP: ", authUser?.uid);
             const bookData = {
-                name, email, selectedCompanyType, npwp
+                name, email, selectedCompanyType, initial, npwp
             };
             await addBook(authUser?.uid, bookData)
             .then(() => {

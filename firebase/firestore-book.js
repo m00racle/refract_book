@@ -40,6 +40,7 @@ export async function addBook(uid, bookData) {
             book_ref
         },
         name: bookData.name,
+        initial: bookData.initial,
         email: bookData.email,
         business_type: bookData.selectedCompanyType,
         npwp: bookData.npwp
