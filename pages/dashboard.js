@@ -4,7 +4,6 @@ import Head from 'next/head';
 import NavBar from '../components/navbar';
 import BookCard from '../components/BookCard';
 import AddBook from '../components/AddBook';
-import dummies from '../dummy1.json';
 import { useAuth } from '../firebase/auth';
 import { useRouter } from 'next/router';
 import { getAllBooks } from '../firebase/firestore-book';

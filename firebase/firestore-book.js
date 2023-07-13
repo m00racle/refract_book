@@ -5,11 +5,6 @@ import { el } from 'date-fns/locale';
 // TODO: manage books
 const BOOK_COLLECTION = 'books';
 
-async function getBookId () {
-    // this is specific function to get the most book Id
-    // use this to make new book id
-}
-
 export async function addBook(uid, bookData) {
     // function to handle add new book to firestore
     let book_ref;
