@@ -1,4 +1,4 @@
-import { addDoc, collection, getDoc, getDocs, limit, orderBy, query, where } from 'firebase/firestore';
+import { addDoc, collection, getDoc, getDocs, limit, onSnapshot, orderBy, query, where } from 'firebase/firestore';
 import { db } from './firebase';
 import { el } from 'date-fns/locale';
 
@@ -51,8 +51,26 @@ export async function addBook(uid, bookData) {
     });
 }
 
-export async function getAllBooks () {
+export async function getAllBooks (uid,  setBooks, setIsLoadingBooks) {
     // show all books related to specific uid.
+    const booksQuery = query(collection(db, BOOK_COLLECTION),
+    where("refs.user_id", "==", uid),
+    orderBy("refs.book_ref", 'desc'));
+    
+    const unsubscribe = onSnapshot(booksQuery, async (snapshot) => {
+        let allBooks = [];
+        for (const documentSnapshot of snapshot.docs) {
+            const book = documentSnapshot.data();
+            allBooks.push({
+                ...book,
+                id: documentSnapshot.id
+            });
+        }
+        setBooks(allBooks);
+        setIsLoadingBooks(false);
+    });
+    // stop listening to database
+    return unsubscribe;
 }
 
 export async function getBook () {

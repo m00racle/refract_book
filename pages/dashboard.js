@@ -7,6 +7,7 @@ import AddBook from '../components/AddBook';
 import dummies from '../dummy1.json';
 import { useAuth } from '../firebase/auth';
 import { useRouter } from 'next/router';
+import { getAllBooks } from '../firebase/firestore-book';
 
 const Dashboard = () => {
   // state for user auth :
@@ -16,12 +17,12 @@ const Dashboard = () => {
   const router = useRouter();
 
   // TODO: useState here is for dummy test only change later with the real QUERY transaction from DATABASE
-  const [books, setBooks] = useState(dummies);
+  const [books, setBooks] = useState([]);
+  const [isLoadingBooks, setIsLoadingBooks] = useState(true);
   const deleteBook = (deleteId) => {
     // TODO: dummy test only to demonstrate delete and mapping of data
     // change this later to the real database delete transaction
     // WARNING: this will be restored to the original dummy data when the page is refreshed.
-    setBooks(books.filter(book => book.id !== deleteId));
   };
 
   // listen for changes to loading or whether authUser !== null, redirect if necessary
@@ -31,7 +32,20 @@ const Dashboard = () => {
     }
   }, [authUser, isLoading]);
 
-  return ((!authUser) ? 
+  // get book once user is logged in
+  useEffect(() => {
+    const fetchBooks = async () => {
+      if (authUser) {
+        const unsubscribe = await getAllBooks(authUser.uid, setBooks, setIsLoadingBooks);
+        return () => unsubscribe();
+      }
+    };
+
+    fetchBooks();
+    
+  }, [authUser]);
+
+  return ((!authUser || isLoadingBooks) ? 
     <CircularProgress color='inherit' sx={{marginLeft: '50%', marginTop: '25%'}}/>
     :
     <div>
