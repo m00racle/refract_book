@@ -25,6 +25,13 @@ export default function BookPage() {
   }, [authUser, isLoading]);
 
   useEffect(() => {
+    // If either authUser or formattedBookId is not available, do nothing
+    if (!authUser || !formattedBookId) {
+      // this part of code is needed since router.query is lazy
+      // I need to wait until the formattedBookId is filled with BookId
+      return;
+    }
+
     const fetchBook = async () => {
       const unsubscribe = await getBook(formattedBookId, setBook, setIsloadingBook).catch((err) => {
         console.error("catch the throwed err from getBook function: ", err);
@@ -58,7 +65,7 @@ export default function BookPage() {
       </Head>
       <PageNavBar bookId={formattedBookId} />
       <div>
-        <h1>Book ID: {formattedBookId}</h1>
+        <h1>Book ID: {book.name}</h1>
       </div>
     </>
   );

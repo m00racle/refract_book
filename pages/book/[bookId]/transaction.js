@@ -40,7 +40,7 @@ export default function TransactionPage() {
         </Head>
         <PageNavBar bookId={formattedBookId} />
         <div>
-            <h1>Transaction Book ID: {(bookId * 1234567 / 3).toLocaleString('id-ID', formatNum)}</h1>
+            <h1>Transaction Book ID: {formattedBookId}</h1>
         </div>
         </>
     );
