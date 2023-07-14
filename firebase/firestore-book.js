@@ -1,4 +1,4 @@
-import { addDoc, collection, getDoc, getDocs, limit, onSnapshot, orderBy, query, where, doc } from 'firebase/firestore';
+import { addDoc, collection, getDoc, getDocs, limit, onSnapshot, orderBy, query, where, doc, deleteDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import { el } from 'date-fns/locale';
 
@@ -103,6 +103,15 @@ export async function editBook () {
     // edit specific book
 }
 
-export async function deleteBook () {
+export async function deleteBook (bookId) {
     // delete specific book
+    try {
+        const bookRef = doc(db, BOOK_COLLECTION, bookId);
+        await deleteDoc(bookRef);
+        // TODO: make snackbar maybe?
+        console.log('Book deleted successfully');
+    } catch (error) {
+        console.error('Error deleting book: ', error);
+        throw error;
+    }
 }
