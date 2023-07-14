@@ -1,4 +1,4 @@
-import { addDoc, collection, getDoc, getDocs, limit, onSnapshot, orderBy, query, where } from 'firebase/firestore';
+import { addDoc, collection, getDoc, getDocs, limit, onSnapshot, orderBy, query, where, doc } from 'firebase/firestore';
 import { db } from './firebase';
 import { el } from 'date-fns/locale';
 
@@ -69,9 +69,35 @@ export async function getAllBooks (uid,  setBooks, setIsLoadingBooks) {
     return unsubscribe;
 }
 
-export async function getBook () {
+export async function getBook (bookId, setBook, setIsLoadingBooks) {
     // show specific book
+    const docRef = doc(db, BOOK_COLLECTION, bookId);
+    const docSnap = await getDoc(docRef).catch((err) => {
+        console.error("Error get a book: ", err);
+        throw err;
+    });
+    // pass the result to setBooks
+    setIsLoadingBooks(false);
+    if (docSnap.exists) {
+        setBook(docSnap.data());
+        // listen to the real time changes
+        const unsubscribe = onSnapshot(docRef, (docSnapshot) => {
+            if (docSnapshot.exists()) {
+                setBook(docSnapshot.data());
+            } else {
+                // show no books
+                setBook(undefined);
+                return undefined;
+            }
+        })
+        return unsubscribe;
+    } else {
+        // handle book does not exist under specific uid
+        setBook(undefined);
+        return undefined;
+    }
 }
+
 
 export async function editBook () {
     // edit specific book
