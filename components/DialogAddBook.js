@@ -7,20 +7,29 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Typography from '@mui/material/Typography';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 import { FormControl, FormControlLabel, InputLabel, MenuItem, Switch, Select } from '@mui/material';
+import { useAuth } from '../firebase/auth';
+import { addBook } from '../firebase/firestore-book';
+import ErrorDialog from './ErrorDialog';
 
 export default function DialogAddBook({ addDialogState, handleClose }) {
     // build dialog when user click add book button
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [errorDialogOpen, setErrorDialogOpen] = useState(false);
     
+    const [errorMessage, setErrorMessage] = useState('');
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
-    const [address, setAddress] = useState('');
+    const [initial, setInitial] = useState('');
     const [npwp, setNpwp] = useState('');
     const [switchBookEmail, setSwitchBookEmail] = useState(false);
     const [emailFieldEnabled, setEmailFieldEnabled] = useState(true);
     const [formError, setFormError] = useState(false);
     const [selectedCompanyType, setSelectedCompanyType] = useState('');
     const companyTypes = ['Perorangan', 'Firma', 'Komanditer', 'Perseroan'];
+    const { authUser, signOut } = useAuth();
 
     // : make handle local close to make the switch back to off and clear the email address
 
@@ -31,7 +40,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         setEmailFieldEnabled(true);
         setSwitchBookEmail(false);
         setFormError(false);
-        setAddress('');
+        setInitial('');
         setNpwp('');
         setSelectedCompanyType('');
 
@@ -47,10 +56,11 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         return emailRegex.test(sample);
     };
 
-    const validateForm = (nameSample, emailSample, typeSample) => {
+    const validateForm = (nameSample, emailSample, typeSample, initialSample) => {
         // validate: name is not empty and email is pass the regex test
         return (nameSample.trim() !== '' 
             && validateEmail(emailSample)
+            && initialSample.trim() !== ''
             && companyTypes.includes(typeSample));
     };
 
@@ -62,9 +72,9 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         setSelectedCompanyType(event.target.value);
     };
 
-    //  input text field address?
-    const handleAddressChange = (event) => {
-        setAddress(event.target.value);
+    //  input text field initial?
+    const handleInitialChange = (event) => {
+        setInitial(event.target.value);
     };
 
     // : input text field NPWP
@@ -78,7 +88,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
             setEmail('');
             setEmailFieldEnabled(true);
         } else {
-            setEmail('default@gmail.com');
+            setEmail(authUser?.email);
             
             setEmailFieldEnabled(false);
         }
@@ -89,15 +99,48 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         setEmail(event.target.value);
     };
 
-    const handleSubmit = () => {
+    const handleCloseSnackbar = () => {
+        setSnackbarOpen(false);
+    };
+    
+    const handleSnackbar = () => {
+        setSnackbarOpen(true);
+    };
+
+    const handleOpenErrorDialog = (message) => {
+        setErrorMessage(message);
+        setErrorDialogOpen(true);
+    };
+
+    const handleCloseErrorDialog = () => {
+        setErrorDialogOpen(false);
+    };
+
+    const handleSubmit = async () => {
         // TODO: change this to the process of adding book to database
-        if (validateForm(name, email, selectedCompanyType)) {
+        if (validateForm(name, email, selectedCompanyType, initial)) {
             console.log("nama perusahan:", name);
             console.log("email perusahaan: ", email);
-            console.log("Alamat: ", address);
+            console.log("Alamat: ", initial);
             console.log("Tipe Perusahaan: ", selectedCompanyType)
-            console.log("NPWP: ", npwp);
-            resetAddBookForm();
+            console.log("NPWP: ", authUser?.uid);
+            const bookData = {
+                name, email, selectedCompanyType, initial, npwp
+            };
+            await addBook(authUser?.uid, bookData)
+            .then(() => {
+                // : handle snackbar
+                handleSnackbar();
+                resetAddBookForm();
+            })
+            .catch((err) => {
+                
+                // : handle error dialog
+                const errMsg = `Failed to AddBook: ${err}`;
+                handleOpenErrorDialog(errMsg);
+            });
+
+            
         } else {
             setFormError(true);
             return;
@@ -107,6 +150,12 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
 
     return (
         <div>
+            {/* Snackbar component */}
+            <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleCloseSnackbar}>
+                <MuiAlert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+                Book added successfully!
+                </MuiAlert>
+            </Snackbar>
             <Dialog open={addDialogState} onClose={resetAddBookForm}>
                 <DialogTitle>Add New Book</DialogTitle>
                 
@@ -146,13 +195,18 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                     />
                     <FormControlLabel label="pakai email user" control={<Switch onChange={handleSwitcedEmailChange}/>} />
                     <TextField 
-                        id='address-multiline'
-                        data-testid="address-multiline"
-                        label="Alamat Perusahaan"
+                        margin='dense'
+                        id='initial'
+                        data-testid="initial"
+                        label="Inisial Perusahaan"
+                        type='text'
                         fullWidth
-                        multiline
-                        value={address}
-                        onChange={handleAddressChange}
+                        variant='standard'
+                        required
+                        value={initial}
+                        onChange={handleInitialChange}
+                        error={formError && initial.trim() === ''}
+                        helperText={formError && initial.trim() === '' ? "Harus diisi" : ""}
                     />
                     <FormControl 
                         fullWidth
@@ -196,6 +250,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                     <Button onClick={handleSubmit}>Submit</Button>
                 </DialogActions>
             </Dialog>
+            <ErrorDialog open={errorDialogOpen} onClose={handleCloseErrorDialog} errorMessage={errorMessage} />
         </div>
     );
 }

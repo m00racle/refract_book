@@ -1,7 +1,17 @@
 rules_version = '2';
 
+
 service cloud.firestore {
   match /databases/{database}/documents {
+    match /books/{bookId} {
+      // Allow authenticated users to create a book
+      allow create: if request.auth != null;
+      
+      // Allow users to read, update, and delete a book if ref.user_id == uid from auth
+      allow read, update, delete: if request.auth != null && resource.data.refs.user_id == request.auth.uid;
+    }
+    
+    // Deny access to other collections and documents
     match /{document=**} {
       allow read, write: if false;
     }

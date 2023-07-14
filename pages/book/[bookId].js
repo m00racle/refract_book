@@ -2,8 +2,9 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import PageNavBar from '../../components/BookNavBar';
 import { useAuth } from '../../firebase/auth';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { CircularProgress } from '@mui/material';
+import { getBook } from '../../firebase/firestore-book';
 
 export default function BookPage() {
   const router = useRouter();
@@ -13,6 +14,9 @@ export default function BookPage() {
   // auth verification
   const { authUser, isLoading } = useAuth();
 
+  const [book, setBook] = useState({});
+  const [isLoadingBook, setIsloadingBook] = useState(true);
+
   // listen to isLoading and authUser changes:
   useEffect(() => {
     if (!isLoading && !authUser) {
@@ -20,7 +24,39 @@ export default function BookPage() {
     }
   }, [authUser, isLoading]);
 
-  return ((!authUser) ?
+  useEffect(() => {
+    // If either authUser or formattedBookId is not available, do nothing
+    if (!authUser || !formattedBookId) {
+      // this part of code is needed since router.query is lazy
+      // I need to wait until the formattedBookId is filled with BookId
+      return;
+    }
+
+    const fetchBook = async () => {
+      const unsubscribe = await getBook(formattedBookId, setBook, setIsloadingBook).catch((err) => {
+        console.error("catch the throwed err from getBook function: ", err);
+      });
+      
+      if (unsubscribe === undefined) {
+        // book does not exis or user don't have access
+        router.push('/dashboard');
+        return;
+      }
+
+      return () => {
+        // unsubscribe from real-time updates when the component unmounts
+        if (unsubscribe) {
+          unsubscribe();
+        }
+      };
+    };
+
+    fetchBook();
+  }, [authUser, formattedBookId]);
+
+  
+
+  return ((!authUser || isLoadingBook) ?
     <CircularProgress color="inherit" sx={{ marginLeft: '50%', marginTop: '25%' }}/>
     :
     <>
@@ -29,7 +65,7 @@ export default function BookPage() {
       </Head>
       <PageNavBar bookId={formattedBookId} />
       <div>
-        <h1>Book ID: {formattedBookId}</h1>
+        <h1>Book ID: {book.name}</h1>
       </div>
     </>
   );
