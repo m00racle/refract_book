@@ -43,9 +43,10 @@ export default function BookCard({ bookId, bookData, deleteFunc }) {
     return (
         <Grid item xs={4}>
             <Paper elevation={3} >
-                {/* TODO: Add logo to the book card (logo located in public/budget.png) */}
+                
                 <Box display="flex" justifyContent="space-between">
                     <div>
+                        {/* TODO: change this to if statement and option to use user own logo */}
                         <img src="/budget.png" alt="Book Logo" width={75} height={75} />
                     </div>
                     <Typography variant='subtitle' component='h2' marginLeft={"0.5em"}>{bookData.name}</Typography>
@@ -54,6 +55,7 @@ export default function BookCard({ bookId, bookData, deleteFunc }) {
                         <Fab color='primary' aria-label='edit book' onClick={handleEditClick}><ModeEditOutlineIcon /></Fab>
                         
                         <Fab data-testid="delete-book-fab" color='secondary' aria-label='delete book' onClick={handleDeleteClick}><DeleteForeverIcon /></Fab>
+                        
                         {/* Dialog for delete book confirmation */}
                         <Dialog
                             open={openDeleteDialog}
@@ -62,8 +64,7 @@ export default function BookCard({ bookId, bookData, deleteFunc }) {
                             aria-describedby='alert-delete-dialog-description'
                         >
                             <DialogTitle id="alert-delete-dialog-title" data-testid="alert-delete-dialog-title" >
-                                {/* TODO: insert string literal of the Book name or id */}
-                                {"Delete the book?"}
+                                {`Delete ${bookData.name} Ledger?`}
                             </DialogTitle>
                             <DialogContent>
                                 <DialogContentText id="alert-delete-dialog-description" data-testid="alert-delete-dialog-description" >
