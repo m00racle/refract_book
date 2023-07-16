@@ -16,7 +16,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { useRouter } from "next/router";
 
 
-export default function BookNavBar({ bookId }) {
+export default function BookNavBar({ bookData }) {
     // navigation bar for specific book
     const router = useRouter();
     const pages = ['transaction', 'document', 'contact', 'report'];
@@ -32,7 +32,7 @@ export default function BookNavBar({ bookId }) {
 
     const handlePush = (target) => {
         // handle push target
-        router.push(`/book/${bookId}/${target}`);
+        router.push(`/book/${bookData.id}/${target}`);
         handleCloseNavMenu();
     };
 
@@ -50,7 +50,7 @@ export default function BookNavBar({ bookId }) {
                         variant="h6"
                         noWrap
                         component="a"
-                        href={`/book/${bookId}`}
+                        href={`/book/${bookData.id}`}
                         sx={{
                             mr: 2,
                             display: { xs: 'none', md: 'flex' },
@@ -62,7 +62,7 @@ export default function BookNavBar({ bookId }) {
                           }}
                     >
                         {/* TODO: put logo here instead of the word BOOK */}
-                        BOOK {bookId}
+                        BOOK {bookData.name}
                     </Typography>
 
                     <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>

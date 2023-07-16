@@ -61,9 +61,9 @@ export default function BookPage() {
     :
     <>
       <Head>
-        <title>{`Book ${formattedBookId}`}</title>
+        <title>{`Book ${book.name}`}</title>
       </Head>
-      <BookNavBar bookId={formattedBookId} />
+      <BookNavBar bookData={book} />
       <div>
         <h1>Book ID: {book.name}</h1>
       </div>
