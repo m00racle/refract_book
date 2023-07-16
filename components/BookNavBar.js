@@ -61,6 +61,7 @@ export default function BookNavBar({ bookId }) {
                             textDecoration: 'none',
                           }}
                     >
+                        {/* TODO: put logo here instead of the word BOOK */}
                         BOOK {bookId}
                     </Typography>
 

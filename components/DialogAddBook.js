@@ -18,7 +18,6 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
     // build dialog when user click add book button
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [errorDialogOpen, setErrorDialogOpen] = useState(false);
-    
     const [errorMessage, setErrorMessage] = useState('');
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
@@ -30,6 +29,8 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
     const [selectedCompanyType, setSelectedCompanyType] = useState('');
     const companyTypes = ['Perorangan', 'Firma', 'Komanditer', 'Perseroan'];
     const { authUser, signOut } = useAuth();
+    // TODO: add state to fill the book logo
+    // TODO: add default logo how to do this? maybe store it in cloud storage?
 
     // : make handle local close to make the switch back to off and clear the email address
 
@@ -116,14 +117,18 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         setErrorDialogOpen(false);
     };
 
+    // TODO: most likely you need function to handle uploaded logo image
+
     const handleSubmit = async () => {
-        // TODO: change this to the process of adding book to database
+        
         if (validateForm(name, email, selectedCompanyType, initial)) {
             console.log("nama perusahan:", name);
             console.log("email perusahaan: ", email);
             console.log("Alamat: ", initial);
             console.log("Tipe Perusahaan: ", selectedCompanyType)
             console.log("NPWP: ", authUser?.uid);
+            // TODO: add the functionalities to add image for logo to Firestore databas
+            // TODO: validate the image is larger than 100 KB
             const bookData = {
                 name, email, selectedCompanyType, initial, npwp
             };

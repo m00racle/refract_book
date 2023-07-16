@@ -27,7 +27,7 @@ export default function BookCard({ bookId, bookData, deleteFunc }) {
 
     const handleDeleteYesClick = async () => {
         // handle when user click Yes sure button in delete dialog
-        // TODO: change with the actual delete to the database
+        // : change with the actual delete to the database
         console.log("delete the book");
         
         // close the dialog
@@ -43,6 +43,7 @@ export default function BookCard({ bookId, bookData, deleteFunc }) {
     return (
         <Grid item xs={4}>
             <Paper elevation={3} >
+                {/* TODO: Add logo to the book card */}
                 <Box display="flex" justifyContent="space-between">
                     <Typography variant='subtitle' component='h2' marginLeft={"1em"}>{bookData.name}</Typography>
                     <Stack direction="row" spacing={"0.5em"}>

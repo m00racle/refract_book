@@ -3,6 +3,7 @@ import { db } from './firebase';
 import { el } from 'date-fns/locale';
 
 // TODO: manage books
+// TODO: when adding books it will also add image as logo.
 const BOOK_COLLECTION = 'books';
 
 export async function addBook(uid, bookData) {
