@@ -32,7 +32,7 @@ export default function BookNavBar({ bookData }) {
 
     const handlePush = (target) => {
         // handle push target
-        router.push(`/book/${bookData.id}/${target}`);
+        router.push(`/book/${bookData.id}`);
         handleCloseNavMenu();
     };
 
