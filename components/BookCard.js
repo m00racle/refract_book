@@ -43,9 +43,12 @@ export default function BookCard({ bookId, bookData, deleteFunc }) {
     return (
         <Grid item xs={4}>
             <Paper elevation={3} >
-                {/* TODO: Add logo to the book card */}
+                {/* TODO: Add logo to the book card (logo located in public/budget.png) */}
                 <Box display="flex" justifyContent="space-between">
-                    <Typography variant='subtitle' component='h2' marginLeft={"1em"}>{bookData.name}</Typography>
+                    <div>
+                        <img src="/budget.png" alt="Book Logo" width={75} height={75} />
+                    </div>
+                    <Typography variant='subtitle' component='h2' marginLeft={"0.5em"}>{bookData.name}</Typography>
                     <Stack direction="row" spacing={"0.5em"}>
                         
                         <Fab color='primary' aria-label='edit book' onClick={handleEditClick}><ModeEditOutlineIcon /></Fab>
