@@ -62,20 +62,15 @@ export default function BookNavBar({ bookData }) {
                           }}
                     >
                         {/* TODO: put logo here instead of the word BOOK */}
-                        BOOK {bookData.name}
+                        <div>
+                        {/* TODO: change this to if statement and option to use user own logo */}
+                            <img src="/budget.png" alt="Book Logo" width={50} height={50} />
+                        </div>
+                        {bookData.name}
                     </Typography>
 
                     <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-                        <IconButton
-                        size="large"
-                        aria-label="account of current user"
-                        aria-controls="menu-appbar"
-                        aria-haspopup="true"
-                        onClick={handleOpenNavMenu}
-                        color="inherit"
-                        >
-                        <MenuIcon />
-                        </IconButton>
+                        
                         <Menu
                         id="menu-appbar"
                         anchorEl={anchorElNav}
