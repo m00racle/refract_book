@@ -1,10 +1,10 @@
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import PageNavBar from '../../components/BookNavBar';
 import { useAuth } from '../../firebase/auth';
 import { useEffect, useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import { getBook } from '../../firebase/firestore-book';
+import BookNavBar from '../../components/BookNavBar';
 
 export default function BookPage() {
   const router = useRouter();
@@ -63,7 +63,7 @@ export default function BookPage() {
       <Head>
         <title>{`Book ${formattedBookId}`}</title>
       </Head>
-      <PageNavBar bookId={formattedBookId} />
+      <BookNavBar bookId={formattedBookId} />
       <div>
         <h1>Book ID: {book.name}</h1>
       </div>
