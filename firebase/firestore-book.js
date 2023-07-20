@@ -1,6 +1,7 @@
 import { addDoc, collection, getDoc, getDocs, limit, onSnapshot, orderBy, query, where, doc, deleteDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import { el } from 'date-fns/locale';
+import { uploadImageToStorage } from './storage';
 
 // TODO: manage books
 // TODO: when adding books it will also add image as logo.
@@ -29,6 +30,12 @@ export async function addBook(uid, bookData) {
         book_ref = lastBookId + 1;
     }
 
+    // upload the logo image to the storage first
+    const imageFile = bookData.logoFile;
+    const fileType = imageFile.name.split('.').pop();
+    const storagePath = `${uid}/${book_ref}/logo.${fileType}`;
+    const downloadUrl = await uploadImageToStorage(imageFile, storagePath, fileType);
+
     // prepare the book doc daa
     const bookDocData = {
         refs: {
@@ -39,7 +46,8 @@ export async function addBook(uid, bookData) {
         initial: bookData.initial,
         email: bookData.email,
         business_type: bookData.selectedCompanyType,
-        npwp: bookData.npwp
+        npwp: bookData.npwp,
+        logoUrl: downloadUrl
     };
 
     await addDoc(collection(db, BOOK_COLLECTION), bookDocData).catch((err) => {

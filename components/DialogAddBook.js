@@ -27,10 +27,11 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
     const [emailFieldEnabled, setEmailFieldEnabled] = useState(true);
     const [formError, setFormError] = useState(false);
     const [selectedCompanyType, setSelectedCompanyType] = useState('');
+    const [logoFile, setLogoFile] = useState('/budget.png');
     const companyTypes = ['Perorangan', 'Firma', 'Komanditer', 'Perseroan'];
     const { authUser, signOut } = useAuth();
-    // TODO: add state to fill the book logo
-    // TODO: add default logo how to do this? maybe store it in cloud storage?
+    // : add state to fill the book logo
+    // : add default logo how to do this? maybe store it in cloud storage?
 
     // : make handle local close to make the switch back to off and clear the email address
 
@@ -44,6 +45,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         setInitial('');
         setNpwp('');
         setSelectedCompanyType('');
+        setLogoFile('/budget.png');
 
         // close the dialog:
         handleClose();
@@ -57,12 +59,18 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         return emailRegex.test(sample);
     };
 
-    const validateForm = (nameSample, emailSample, typeSample, initialSample) => {
+    const validateLogo = (selectedFile) => {
+        const MAX_FILE_SIZE = 100 * 1024;
+        return (selectedFile.size < MAX_FILE_SIZE && /^image\/(jpeg|png)$/.test(selectedFile.type));
+    };
+
+    const validateForm = (nameSample, emailSample, typeSample, initialSample, logoSample) => {
         // validate: name is not empty and email is pass the regex test
         return (nameSample.trim() !== '' 
             && validateEmail(emailSample)
             && initialSample.trim() !== ''
-            && companyTypes.includes(typeSample));
+            && companyTypes.includes(typeSample)
+            && validateLogo(logoSample));
     };
 
     const handleNameChange = (event) => {
@@ -117,11 +125,19 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         setErrorDialogOpen(false);
     };
 
-    // TODO: most likely you need function to handle uploaded logo image
+    // : most likely you need function to handle uploaded logo image
+    const handleLogoChange = (event) => {
+        const selectedFile = event.target.files[0];
+        if (selectedFile) {
+            setLogoFile(selectedFile);
+        } else {
+            setLogoFile('/budget.png');
+        }
+    };
 
     const handleSubmit = async () => {
         
-        if (validateForm(name, email, selectedCompanyType, initial)) {
+        if (validateForm(name, email, selectedCompanyType, initial, logoFile)) {
             console.log("nama perusahan:", name);
             console.log("email perusahaan: ", email);
             console.log("Alamat: ", initial);
@@ -130,7 +146,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
             // TODO: add the functionalities to add image for logo to Firestore databas
             // TODO: validate the image is larger than 100 KB
             const bookData = {
-                name, email, selectedCompanyType, initial, npwp
+                name, email, selectedCompanyType, initial, npwp, logoFile
             };
             await addBook(authUser?.uid, bookData)
             .then(() => {
@@ -248,6 +264,17 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                         variant='standard'
                         value={npwp}
                         onChange={handleNpwpChange}
+                    />
+                    <TextField 
+                        margin='dense'
+                        id='logo-file'
+                        label='Logo Perusahaan (optional)'
+                        fullWidth
+                        type='file'
+                        variant='standard'
+                        onChange={handleLogoChange}
+                        error={formError && !validateLogo(logoFile)}
+                        helperText={formError && !validateLogo(logoFile) ? "file terlalu besar atau tipe tidak support" : ""}
                     />
                 </DialogContent>
                 <DialogActions>

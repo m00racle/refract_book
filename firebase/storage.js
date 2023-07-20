@@ -1,7 +1,7 @@
 /*  
 Handle the cloud storage management
 */
-import { ref, uploadBytes } from 'firebase/storage';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { storage } from './firebase';
 
 export async function uploadImageToStorage(file, filePath, fileType) {
@@ -10,4 +10,9 @@ export async function uploadImageToStorage(file, filePath, fileType) {
     await uploadBytes(storageRef, file, {
         contentType: `image/${fileType}`,
     });
+
+    // get download URL of the uploaded file
+    const downloadUrl = await getDownloadURL(storageRef);
+    
+    return downloadUrl;
 }
