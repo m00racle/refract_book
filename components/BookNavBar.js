@@ -56,16 +56,15 @@ export default function BookNavBar({ bookData }) {
                             display: { xs: 'none', md: 'flex' },
                             fontFamily: 'monospace',
                             fontWeight: 700,
-                            letterSpacing: '.3rem',
+                            letterSpacing: '.1rem',
                             color: 'inherit',
                             textDecoration: 'none',
                           }}
                     >
-                        {/* TODO: put logo here instead of the word BOOK */}
-                        <div>
-                        {/* TODO: change this to if statement and option to use user own logo */}
-                            <img src="/budget.png" alt="Book Logo" width={50} height={50} />
-                        </div>
+                        {/* put logo here */}
+                        <Box sx={{ padding: '.25em' }}>
+                            <img src={bookData.logoUrl} alt="Book Logo" width={50} height={50} />
+                        </Box>
                         {bookData.name}
                     </Typography>
 
