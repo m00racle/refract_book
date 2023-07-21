@@ -47,7 +47,7 @@ export default function BookCard({ bookId, bookData, deleteFunc }) {
                 <Box display="flex" justifyContent="space-between">
                     <div>
                         {/* TODO: change this to if statement and option to use user own logo */}
-                        <img src="/budget.png" alt="Book Logo" width={75} height={75} />
+                        <img src={bookData.logoUrl} alt="Book Logo" width={75} height={75} />
                     </div>
                     <Typography variant='subtitle' component='h2' marginLeft={"0.5em"}>{bookData.name}</Typography>
                     <Stack direction="row" spacing={"0.5em"}>

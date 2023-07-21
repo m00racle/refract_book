@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
@@ -27,13 +27,12 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
     const [emailFieldEnabled, setEmailFieldEnabled] = useState(true);
     const [formError, setFormError] = useState(false);
     const [selectedCompanyType, setSelectedCompanyType] = useState('');
-    const [logoFile, setLogoFile] = useState('/budget.png');
+    const [logoFile, setLogoFile] = useState(null);
     const companyTypes = ['Perorangan', 'Firma', 'Komanditer', 'Perseroan'];
     const { authUser, signOut } = useAuth();
-    // : add state to fill the book logo
-    // : add default logo how to do this? maybe store it in cloud storage?
-
-    // : make handle local close to make the switch back to off and clear the email address
+    
+    // default logo
+    const DEFAULT_LOGO = '/budget.png';
 
     const resetAddBookForm = () => {
         // reset all fields in the addBook dialog content
@@ -45,7 +44,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         setInitial('');
         setNpwp('');
         setSelectedCompanyType('');
-        setLogoFile('/budget.png');
+        setLogoFile(null);
 
         // close the dialog:
         handleClose();
@@ -126,14 +125,44 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
     };
 
     // : most likely you need function to handle uploaded logo image
-    const handleLogoChange = (event) => {
+    const convertToLogoFile = async (defaultLogoPath) => {
+        try {
+            const logoBlob = await fetch(defaultLogoPath).then((res) => res.blob());
+            return new File([logoBlob], 'budget.png', { type: 'image/png' });
+        } catch (error) {
+            console.error("Failed to fetch and convert default logo path to Blob:", error);
+            // just retun the logoFile to its default which is null
+            return null;
+        }
+    };
+
+    useEffect(() => {
+        // Set the default logo when the component mounts
+        const getDefaultLogo = async () => {
+          const defaultLogoFile = await convertToLogoFile(DEFAULT_LOGO);
+          if (defaultLogoFile) {
+            setLogoFile(defaultLogoFile);
+          }
+        };
+        getDefaultLogo();
+      }, [addDialogState]);
+      
+    const handleLogoChange = async (event) => {
         const selectedFile = event.target.files[0];
         if (selectedFile) {
             setLogoFile(selectedFile);
         } else {
-            setLogoFile('/budget.png');
+            const defaultLogoFile = await convertToLogoFile(DEFAULT_LOGO);
+            if (defaultLogoFile) {
+                setLogoFile(defaultLogoFile);
+            } else {
+            // If default logo file is not available, you can set it to null or handle the situation as needed.
+                setLogoFile(null);
+            }
         }
     };
+      
+      
 
     const handleSubmit = async () => {
         
@@ -143,8 +172,8 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
             console.log("Alamat: ", initial);
             console.log("Tipe Perusahaan: ", selectedCompanyType)
             console.log("NPWP: ", authUser?.uid);
-            // TODO: add the functionalities to add image for logo to Firestore databas
-            // TODO: validate the image is larger than 100 KB
+            // : add the functionalities to add image for logo to Firestore databas
+            // : validate the image is larger than 100 KB
             const bookData = {
                 name, email, selectedCompanyType, initial, npwp, logoFile
             };
