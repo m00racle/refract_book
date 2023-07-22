@@ -1,10 +1,8 @@
 import { addDoc, collection, getDoc, getDocs, limit, onSnapshot, orderBy, query, where, doc, deleteDoc } from 'firebase/firestore';
 import { db } from './firebase';
-import { el } from 'date-fns/locale';
 import { deleteStorageFolder, uploadImageToStorage } from './storage';
 
-// TODO: manage books
-// TODO: when adding books it will also add image as logo.
+
 const BOOK_COLLECTION = 'books';
 
 export async function addBook(uid, bookData) {
@@ -123,9 +121,6 @@ export async function deleteBook (bookId, uid) {
     });
     // extract the data from bookSnap
     const bookData = bookSnap.data();
-    // delete all related images to the book in the storage
-    // const logoURL = bookData.logoUrl;
-    // const storagePath = logoURL.substring(logoURL.indexOf("/o/") + 3, logoURL.indexOf("?"));
     const bookRef = bookData.refs.book_ref;
     const storagePath = `${uid}/${bookRef}`;
     
