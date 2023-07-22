@@ -1,7 +1,7 @@
 /*  
 Handle the cloud storage management
 */
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { storage } from './firebase';
 
 export async function uploadImageToStorage(file, filePath, fileType) {
@@ -15,4 +15,20 @@ export async function uploadImageToStorage(file, filePath, fileType) {
     const downloadUrl = await getDownloadURL(storageRef);
     
     return downloadUrl;
+}
+
+export async function deleteStorageFolder(folderPath) {
+    const folderRef = ref(storage,folderPath);
+    
+    // start delete directory
+
+    try {
+        await deleteObject(folderRef);
+
+        // test: console log delete
+        console.log(`directory ${folderPath} is deleted`);
+    } catch (error) {
+        console.error(`Error deleting directory ${folderPath}: `, error);
+        throw error;
+    }
 }

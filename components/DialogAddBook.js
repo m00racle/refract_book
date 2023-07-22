@@ -167,13 +167,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
     const handleSubmit = async () => {
         
         if (validateForm(name, email, selectedCompanyType, initial, logoFile)) {
-            console.log("nama perusahan:", name);
-            console.log("email perusahaan: ", email);
-            console.log("Alamat: ", initial);
-            console.log("Tipe Perusahaan: ", selectedCompanyType)
-            console.log("NPWP: ", authUser?.uid);
-            // : add the functionalities to add image for logo to Firestore databas
-            // : validate the image is larger than 100 KB
+            
             const bookData = {
                 name, email, selectedCompanyType, initial, npwp, logoFile
             };

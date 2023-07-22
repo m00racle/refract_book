@@ -15,13 +15,13 @@ const Dashboard = () => {
   // prepare router to redirect user if not signed in
   const router = useRouter();
 
-  // TODO: useState here is for dummy test only change later with the real QUERY transaction from DATABASE
+  // delete the book:
   const [books, setBooks] = useState([]);
   const [isLoadingBooks, setIsLoadingBooks] = useState(true);
 
   const handleDeleteBook = async (bookId) => {
     try {
-      await deleteBook(bookId);
+      await deleteBook(bookId, authUser.uid);
       console.log('Book deleted successfully');
     } catch (error) {
       console.error('catch error from deleteBook: ', error);

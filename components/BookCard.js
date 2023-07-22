@@ -27,8 +27,6 @@ export default function BookCard({ bookId, bookData, deleteFunc }) {
 
     const handleDeleteYesClick = async () => {
         // handle when user click Yes sure button in delete dialog
-        // : change with the actual delete to the database
-        console.log("delete the book");
         
         // close the dialog
         handleDeleteDialogClose();

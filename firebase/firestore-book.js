@@ -1,7 +1,7 @@
 import { addDoc, collection, getDoc, getDocs, limit, onSnapshot, orderBy, query, where, doc, deleteDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import { el } from 'date-fns/locale';
-import { uploadImageToStorage } from './storage';
+import { deleteStorageFolder, uploadImageToStorage } from './storage';
 
 // TODO: manage books
 // TODO: when adding books it will also add image as logo.
@@ -114,12 +114,28 @@ export async function editBook () {
     // edit specific book
 }
 
-export async function deleteBook (bookId) {
+export async function deleteBook (bookId, uid) {
+    // fetch the book data
+    const docRef = doc(db, BOOK_COLLECTION, bookId);
+    const bookSnap = await getDoc(docRef).catch((err) => {
+        console.error("Error get a book: ", err);
+        throw err;
+    });
+    // extract the data from bookSnap
+    const bookData = bookSnap.data();
+    // delete all related images to the book in the storage
+    const logoURL = bookData.logoUrl;
+    const storagePath = logoURL.substring(logoURL.indexOf("/o/") + 3, logoURL.indexOf("?"));
+    try {
+        await deleteStorageFolder(storagePath);
+    } catch (error) {
+        console.error('catch error from deleteStorageFolder: ', error);
+        throw error;
+    }
     // delete specific book
     try {
-        const bookRef = doc(db, BOOK_COLLECTION, bookId);
-        await deleteDoc(bookRef);
-        // TODO: make snackbar maybe?
+        await deleteDoc(docRef);
+        
         console.log('Book deleted successfully');
     } catch (error) {
         console.error('Error deleting book: ', error);
