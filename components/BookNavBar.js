@@ -16,7 +16,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { useRouter } from "next/router";
 
 
-export default function BookNavBar({ bookData }) {
+export default function BookNavBar({ bookData, contentType, setContentFunct }) {
     // navigation bar for specific book
     const router = useRouter();
     const pages = ['transaction', 'document', 'contact', 'report'];
@@ -30,9 +30,15 @@ export default function BookNavBar({ bookData }) {
         setAnchorElNav(null);
     };
 
+    const handleLogoClick = () => {
+        setContentFunct('overview');
+        router.push(`/book/${bookData.id}`);
+    };
+
     const handlePush = (target) => {
         // handle push target
-        router.push(`/book/${bookData.id}`);
+        // router.push(`/book/${bookData.id}`);
+        setContentFunct(target);
         handleCloseNavMenu();
     };
 
@@ -45,29 +51,28 @@ export default function BookNavBar({ bookData }) {
         <AppBar position="static">
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
-                    {/* let's skip the logo for now */}
-                    <Typography
-                        variant="h6"
-                        noWrap
-                        component="a"
-                        href={`/book/${bookData.id}`}
-                        sx={{
-                            mr: 2,
-                            display: { xs: 'none', md: 'flex' },
-                            fontFamily: 'monospace',
-                            fontWeight: 700,
-                            letterSpacing: '.1rem',
-                            color: 'inherit',
-                            textDecoration: 'none',
-                          }}
-                    >
-                        {/* put logo here */}
-                        <Box sx={{ padding: '.25em' }}>
-                            <img src={bookData.logoUrl} alt="Book Logo" width={50} height={50} />
-                        </Box>
-                        {bookData.name}
-                    </Typography>
-
+                    <Box onClick={handleLogoClick}>
+                        <Typography
+                            variant="h6"
+                            noWrap
+                            component="a"
+                            sx={{
+                                mr: 2,
+                                display: { xs: 'none', md: 'flex' },
+                                fontFamily: 'monospace',
+                                fontWeight: 700,
+                                letterSpacing: '.1rem',
+                                color: 'inherit',
+                                textDecoration: 'none',
+                            }}
+                        >
+                            {/* put logo here */}
+                            <Box sx={{ padding: '.25em' }}>
+                                <img src={bookData.logoUrl} alt="Book Logo" width={50} height={50} />
+                            </Box>
+                            {bookData.name}
+                        </Typography>
+                    </Box>
                     <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
                         
                         <Menu
@@ -89,8 +94,14 @@ export default function BookNavBar({ bookData }) {
                         }}
                         >
                         {pages.map((page) => (
-                            <MenuItem key={page} onClick={() => handlePush(page)}>
-                            <Typography textAlign="center">{page}</Typography>
+                            <MenuItem 
+                                key={page} 
+                                onClick={() => handlePush(page)}
+                                sx={{
+                                    backgroundColor: contentType === page ? 'primary.main' : 'inherit'
+                                }}
+                            >
+                                <Typography textAlign="center">{page}</Typography>
                             </MenuItem>
                         ))}
                         <MenuItem onClick={handleClickDashboard}>
