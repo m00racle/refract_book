@@ -46,16 +46,6 @@ export async function deleteStorageFolder(folderPath) {
         // Wait for all subfolders to be deleted
         await Promise.all(deleteSubfolderPromises);
 
-        // The folder is now genuinely empty, try to delete it
-        try {
-            await deleteObject(folderRef);
-            console.log(`Directory ${folderPath} is deleted successfully.`);
-        } catch (error) {
-            // The folder is not empty and cannot be deleted at this point.
-            // It will be automatically deleted when its contents are removed.
-            console.log(`Directory ${folderPath} is not empty.`);
-        }
-
         console.log(`Directory ${folderPath} is deleted successfully.`);
     } catch (error) {
         console.error(`Error deleting directory ${folderPath}: `, error);
