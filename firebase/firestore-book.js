@@ -124,14 +124,11 @@ export async function deleteBook (bookId, uid) {
     // extract the data from bookSnap
     const bookData = bookSnap.data();
     // delete all related images to the book in the storage
-    const logoURL = bookData.logoUrl;
-    const storagePath = logoURL.substring(logoURL.indexOf("/o/") + 3, logoURL.indexOf("?"));
-    try {
-        await deleteStorageFolder(storagePath);
-    } catch (error) {
-        console.error('catch error from deleteStorageFolder: ', error);
-        throw error;
-    }
+    // const logoURL = bookData.logoUrl;
+    // const storagePath = logoURL.substring(logoURL.indexOf("/o/") + 3, logoURL.indexOf("?"));
+    const bookRef = bookData.refs.book_ref;
+    const storagePath = `${uid}/${bookRef}`;
+    
     // delete specific book
     try {
         await deleteDoc(docRef);
@@ -140,5 +137,13 @@ export async function deleteBook (bookId, uid) {
     } catch (error) {
         console.error('Error deleting book: ', error);
         throw error;
+    }
+
+    // delete the folder:
+    try {
+        await deleteStorageFolder(storagePath);
+    } catch (error) {
+        console.error('catch error from deleteStorageFolder: ', error);
+        // throw error;
     }
 }
