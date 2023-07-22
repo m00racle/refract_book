@@ -18,37 +18,29 @@ export async function uploadImageToStorage(file, filePath, fileType) {
 }
 
 export async function deleteStorageFolder(folderPath) {
-    const folderRef = ref(storage,folderPath);
+    const listRef = ref(storage,folderPath);
     
     // start delete directory
 
-    try {
-        // List all prefixes inside the folder (subfolders)
-        const { prefixes } = await listAll(folderRef);
-
-        // Delete all subfolders recursively
-        const deleteSubfolderPromises = prefixes.map(async (prefix) => {
-            const subfolderPath = prefix.fullPath;
-            await deleteStorageFolder(subfolderPath);
-        });
-
-        // Wait for all subfolders to be deleted
-        await Promise.all(deleteSubfolderPromises);
-
-        // List all items inside the folder (files)
-        const { items } = await listAll(folderRef);
-
-        // Delete all files one by one
-        const deleteFilePromises = items.map(async (item) => {
-            await deleteObject(item);
-        });
-
-        // Wait for all files to be deleted
-        await Promise.all(deleteFilePromises);
-
-        console.log(`Directory ${folderPath} is deleted successfully.`);
-    } catch (error) {
-        console.error(`Error deleting directory ${folderPath}: `, error);
-        throw error;
-    }
+    await listAll(listRef)
+        .then((res) => {
+            res.prefixes.forEach(async (folderRef) => {
+                // All the prefixes under listRef.
+                // call deleteStorageFolder recursively
+                await deleteStorageFolder(folderRef.fullPath)
+                    .catch((error) => {
+                        console.error('error on recursive delete: ', error);
+                    });
+            });
+            res.items.forEach(async (itemRef) => {
+                // All the items under listRef.
+                await deleteObject(itemRef)
+                    .catch((error) => {
+                        console.error('error deleting the item: ', error);
+                    });
+            });
+        }).catch((error) => {
+            console.error('failed to delete folder: ', error);
+    });
+    
 }
