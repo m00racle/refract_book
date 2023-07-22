@@ -23,17 +23,6 @@ export async function deleteStorageFolder(folderPath) {
     // start delete directory
 
     try {
-        // List all items inside the folder (files)
-        const { items } = await listAll(folderRef);
-
-        // Delete all files one by one
-        const deleteFilePromises = items.map(async (item) => {
-            await deleteObject(item);
-        });
-
-        // Wait for all files to be deleted
-        await Promise.all(deleteFilePromises);
-
         // List all prefixes inside the folder (subfolders)
         const { prefixes } = await listAll(folderRef);
 
@@ -45,6 +34,17 @@ export async function deleteStorageFolder(folderPath) {
 
         // Wait for all subfolders to be deleted
         await Promise.all(deleteSubfolderPromises);
+
+        // List all items inside the folder (files)
+        const { items } = await listAll(folderRef);
+
+        // Delete all files one by one
+        const deleteFilePromises = items.map(async (item) => {
+            await deleteObject(item);
+        });
+
+        // Wait for all files to be deleted
+        await Promise.all(deleteFilePromises);
 
         console.log(`Directory ${folderPath} is deleted successfully.`);
     } catch (error) {
