@@ -124,17 +124,17 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         setErrorDialogOpen(false);
     };
 
-    // : most likely you need function to handle uploaded logo image
+    // convert image for logo to File Type:
     const convertToLogoFile = async (defaultLogoPath) => {
         try {
-            const logoBlob = await fetch(defaultLogoPath).then((res) => res.blob());
+            const logoBlob = await fetch(defaultLogoPath)
+              .then((res) => res.blob());
             return new File([logoBlob], 'budget.png', { type: 'image/png' });
         } catch (error) {
             console.error("Failed to fetch and convert default logo path to Blob:", error);
-            // just retun the logoFile to its default which is null
             return null;
         }
-    };
+    };    
 
     useEffect(() => {
         // Set the default logo when the component mounts
