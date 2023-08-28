@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import { getBook } from '../../firebase/firestore-book';
 import BookNavBar from '../../components/BookNavBar';
+import OverviewContent from '../../components/book/OverviewContent';
+import TransactionContent from '../../components/book/TransactionContent';
 
 export default function BookPage() {
   const router = useRouter();
@@ -16,6 +18,12 @@ export default function BookPage() {
 
   const [book, setBook] = useState({});
   const [isLoadingBook, setIsloadingBook] = useState(true);
+  const [content, setContent] = useState('overview');
+
+  const availableContents = {
+    overview: OverviewContent,
+    transaction: TransactionContent
+  };
 
   // listen to isLoading and authUser changes:
   useEffect(() => {
@@ -54,6 +62,7 @@ export default function BookPage() {
     fetchBook();
   }, [authUser, formattedBookId]);
 
+  const RenderedContent = availableContents[content] || OverviewContent;
   
 
   return ((!authUser || isLoadingBook) ?
@@ -63,9 +72,9 @@ export default function BookPage() {
       <Head>
         <title>{`Book ${book.name}`}</title>
       </Head>
-      <BookNavBar bookData={book} />
+      <BookNavBar bookData={book} contentType={content} setContentFunct={setContent}/>
       <div>
-        <h1>Book ID: {book.name}</h1>
+        <RenderedContent bookData={book} contentType={content} setContentFunct={setContent} />
       </div>
     </>
   );

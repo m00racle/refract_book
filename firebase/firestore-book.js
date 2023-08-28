@@ -31,7 +31,7 @@ export async function addBook(uid, bookData) {
     // upload the logo image to the storage first
     const imageFile = bookData.logoFile;
     const fileType = imageFile.name.split('.').pop();
-    const storagePath = `${uid}/${book_ref}/logo.${fileType}`;
+    const storagePath = `${uid}/${book_ref}/settings/logo.${fileType}`;
     const downloadUrl = await uploadImageToStorage(imageFile, storagePath, fileType);
 
     // prepare the book doc daa
