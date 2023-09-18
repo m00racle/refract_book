@@ -1,8 +1,8 @@
 import { addDoc, collection, getDoc, getDocs, limit, onSnapshot, orderBy, query, where, doc, deleteDoc } from 'firebase/firestore';
 import { db } from './firebase';
-import { el } from 'date-fns/locale';
+import { deleteStorageFolder, uploadImageToStorage } from './storage';
 
-// TODO: manage books
+
 const BOOK_COLLECTION = 'books';
 
 export async function addBook(uid, bookData) {
@@ -28,6 +28,12 @@ export async function addBook(uid, bookData) {
         book_ref = lastBookId + 1;
     }
 
+    // upload the logo image to the storage first
+    const imageFile = bookData.logoFile;
+    const fileType = imageFile.name.split('.').pop();
+    const storagePath = `${uid}/${book_ref}/settings/logo.${fileType}`;
+    const downloadUrl = await uploadImageToStorage(imageFile, storagePath, fileType);
+
     // prepare the book doc daa
     const bookDocData = {
         refs: {
@@ -38,7 +44,8 @@ export async function addBook(uid, bookData) {
         initial: bookData.initial,
         email: bookData.email,
         business_type: bookData.selectedCompanyType,
-        npwp: bookData.npwp
+        npwp: bookData.npwp,
+        logoUrl: downloadUrl
     };
 
     await addDoc(collection(db, BOOK_COLLECTION), bookDocData).catch((err) => {
@@ -79,11 +86,13 @@ export async function getBook (bookId, setBook, setIsLoadingBooks) {
     // pass the result to setBooks
     setIsLoadingBooks(false);
     if (docSnap.exists) {
-        setBook(docSnap.data());
+        const bookData = docSnap.data();
+        setBook({id: docSnap.id, ...bookData});
         // listen to the real time changes
         const unsubscribe = onSnapshot(docRef, (docSnapshot) => {
             if (docSnapshot.exists()) {
-                setBook(docSnapshot.data());
+                const updatedBookData = docSnapshot.data();
+                setBook({id: docSnapshot.id, ...updatedBookData});
             } else {
                 // show no books
                 setBook(undefined);
@@ -103,15 +112,33 @@ export async function editBook () {
     // edit specific book
 }
 
-export async function deleteBook (bookId) {
+export async function deleteBook (bookId, uid) {
+    // fetch the book data
+    const docRef = doc(db, BOOK_COLLECTION, bookId);
+    const bookSnap = await getDoc(docRef).catch((err) => {
+        console.error("Error get a book: ", err);
+        throw err;
+    });
+    // extract the data from bookSnap
+    const bookData = bookSnap.data();
+    const bookRef = bookData.refs.book_ref;
+    const storagePath = `${uid}/${bookRef}`;
+    
     // delete specific book
     try {
-        const bookRef = doc(db, BOOK_COLLECTION, bookId);
-        await deleteDoc(bookRef);
-        // TODO: make snackbar maybe?
+        await deleteDoc(docRef);
+        
         console.log('Book deleted successfully');
     } catch (error) {
         console.error('Error deleting book: ', error);
         throw error;
+    }
+
+    // delete the folder:
+    try {
+        await deleteStorageFolder(storagePath);
+    } catch (error) {
+        console.error('catch error from deleteStorageFolder: ', error);
+        // throw error;
     }
 }

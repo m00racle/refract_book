@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
@@ -18,7 +18,6 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
     // build dialog when user click add book button
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [errorDialogOpen, setErrorDialogOpen] = useState(false);
-    
     const [errorMessage, setErrorMessage] = useState('');
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
@@ -28,10 +27,12 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
     const [emailFieldEnabled, setEmailFieldEnabled] = useState(true);
     const [formError, setFormError] = useState(false);
     const [selectedCompanyType, setSelectedCompanyType] = useState('');
+    const [logoFile, setLogoFile] = useState(null);
     const companyTypes = ['Perorangan', 'Firma', 'Komanditer', 'Perseroan'];
     const { authUser, signOut } = useAuth();
-
-    // : make handle local close to make the switch back to off and clear the email address
+    
+    // default logo
+    const DEFAULT_LOGO = '/budget.png';
 
     const resetAddBookForm = () => {
         // reset all fields in the addBook dialog content
@@ -43,6 +44,7 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         setInitial('');
         setNpwp('');
         setSelectedCompanyType('');
+        setLogoFile(null);
 
         // close the dialog:
         handleClose();
@@ -56,12 +58,18 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         return emailRegex.test(sample);
     };
 
-    const validateForm = (nameSample, emailSample, typeSample, initialSample) => {
+    const validateLogo = (selectedFile) => {
+        const MAX_FILE_SIZE = 100 * 1024;
+        return (selectedFile.size < MAX_FILE_SIZE && /^image\/(jpeg|png)$/.test(selectedFile.type));
+    };
+
+    const validateForm = (nameSample, emailSample, typeSample, initialSample, logoSample) => {
         // validate: name is not empty and email is pass the regex test
         return (nameSample.trim() !== '' 
             && validateEmail(emailSample)
             && initialSample.trim() !== ''
-            && companyTypes.includes(typeSample));
+            && companyTypes.includes(typeSample)
+            && validateLogo(logoSample));
     };
 
     const handleNameChange = (event) => {
@@ -116,16 +124,52 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
         setErrorDialogOpen(false);
     };
 
+    // convert image for logo to File Type:
+    const convertToLogoFile = async (defaultLogoPath) => {
+        try {
+            const logoBlob = await fetch(defaultLogoPath)
+              .then((res) => res.blob());
+            return new File([logoBlob], 'budget.png', { type: 'image/png' });
+        } catch (error) {
+            console.error("Failed to fetch and convert default logo path to Blob:", error);
+            return null;
+        }
+    };    
+
+    useEffect(() => {
+        // Set the default logo when the component mounts
+        const getDefaultLogo = async () => {
+          const defaultLogoFile = await convertToLogoFile(DEFAULT_LOGO);
+          if (defaultLogoFile) {
+            setLogoFile(defaultLogoFile);
+          }
+        };
+        getDefaultLogo();
+      }, [addDialogState]);
+      
+    const handleLogoChange = async (event) => {
+        const selectedFile = event.target.files[0];
+        if (selectedFile) {
+            setLogoFile(selectedFile);
+        } else {
+            const defaultLogoFile = await convertToLogoFile(DEFAULT_LOGO);
+            if (defaultLogoFile) {
+                setLogoFile(defaultLogoFile);
+            } else {
+            // If default logo file is not available, you can set it to null or handle the situation as needed.
+                setLogoFile(null);
+            }
+        }
+    };
+      
+      
+
     const handleSubmit = async () => {
-        // TODO: change this to the process of adding book to database
-        if (validateForm(name, email, selectedCompanyType, initial)) {
-            console.log("nama perusahan:", name);
-            console.log("email perusahaan: ", email);
-            console.log("Alamat: ", initial);
-            console.log("Tipe Perusahaan: ", selectedCompanyType)
-            console.log("NPWP: ", authUser?.uid);
+        
+        if (validateForm(name, email, selectedCompanyType, initial, logoFile)) {
+            
             const bookData = {
-                name, email, selectedCompanyType, initial, npwp
+                name, email, selectedCompanyType, initial, npwp, logoFile
             };
             await addBook(authUser?.uid, bookData)
             .then(() => {
@@ -243,6 +287,17 @@ export default function DialogAddBook({ addDialogState, handleClose }) {
                         variant='standard'
                         value={npwp}
                         onChange={handleNpwpChange}
+                    />
+                    <TextField 
+                        margin='dense'
+                        id='logo-file'
+                        label='Logo Perusahaan (optional)'
+                        fullWidth
+                        type='file'
+                        variant='standard'
+                        onChange={handleLogoChange}
+                        error={formError && !validateLogo(logoFile)}
+                        helperText={formError && !validateLogo(logoFile) ? "file terlalu besar atau tipe tidak support" : ""}
                     />
                 </DialogContent>
                 <DialogActions>

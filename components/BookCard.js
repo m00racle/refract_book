@@ -27,8 +27,6 @@ export default function BookCard({ bookId, bookData, deleteFunc }) {
 
     const handleDeleteYesClick = async () => {
         // handle when user click Yes sure button in delete dialog
-        // TODO: change with the actual delete to the database
-        console.log("delete the book");
         
         // close the dialog
         handleDeleteDialogClose();
@@ -43,13 +41,19 @@ export default function BookCard({ bookId, bookData, deleteFunc }) {
     return (
         <Grid item xs={4}>
             <Paper elevation={3} >
+                
                 <Box display="flex" justifyContent="space-between">
-                    <Typography variant='subtitle' component='h2' marginLeft={"1em"}>{bookData.name}</Typography>
+                    <div>
+                        {/* TODO: change this to if statement and option to use user own logo */}
+                        <img src={bookData.logoUrl} alt="Book Logo" width={75} height={75} />
+                    </div>
+                    <Typography variant='subtitle' component='h2' marginLeft={"0.5em"}>{bookData.name}</Typography>
                     <Stack direction="row" spacing={"0.5em"}>
                         
                         <Fab color='primary' aria-label='edit book' onClick={handleEditClick}><ModeEditOutlineIcon /></Fab>
                         
                         <Fab data-testid="delete-book-fab" color='secondary' aria-label='delete book' onClick={handleDeleteClick}><DeleteForeverIcon /></Fab>
+                        
                         {/* Dialog for delete book confirmation */}
                         <Dialog
                             open={openDeleteDialog}
@@ -58,8 +62,7 @@ export default function BookCard({ bookId, bookData, deleteFunc }) {
                             aria-describedby='alert-delete-dialog-description'
                         >
                             <DialogTitle id="alert-delete-dialog-title" data-testid="alert-delete-dialog-title" >
-                                {/* TODO: insert string literal of the Book name or id */}
-                                {"Delete the book?"}
+                                {`Delete ${bookData.name} Ledger?`}
                             </DialogTitle>
                             <DialogContent>
                                 <DialogContentText id="alert-delete-dialog-description" data-testid="alert-delete-dialog-description" >

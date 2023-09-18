@@ -16,7 +16,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { useRouter } from "next/router";
 
 
-export default function BookNavBar({ bookId }) {
+export default function BookNavBar({ bookData, contentType, setContentFunct }) {
     // navigation bar for specific book
     const router = useRouter();
     const pages = ['transaction', 'document', 'contact', 'report'];
@@ -30,9 +30,15 @@ export default function BookNavBar({ bookId }) {
         setAnchorElNav(null);
     };
 
+    const handleLogoClick = () => {
+        setContentFunct('overview');
+        router.push(`/book/${bookData.id}`);
+    };
+
     const handlePush = (target) => {
         // handle push target
-        router.push(`/book/${bookId}/${target}`);
+        // router.push(`/book/${bookData.id}`);
+        setContentFunct(target);
         handleCloseNavMenu();
     };
 
@@ -45,36 +51,30 @@ export default function BookNavBar({ bookId }) {
         <AppBar position="static">
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
-                    {/* let's skip the logo for now */}
-                    <Typography
-                        variant="h6"
-                        noWrap
-                        component="a"
-                        href={`/book/${bookId}`}
-                        sx={{
-                            mr: 2,
-                            display: { xs: 'none', md: 'flex' },
-                            fontFamily: 'monospace',
-                            fontWeight: 700,
-                            letterSpacing: '.3rem',
-                            color: 'inherit',
-                            textDecoration: 'none',
-                          }}
-                    >
-                        BOOK {bookId}
-                    </Typography>
-
-                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-                        <IconButton
-                        size="large"
-                        aria-label="account of current user"
-                        aria-controls="menu-appbar"
-                        aria-haspopup="true"
-                        onClick={handleOpenNavMenu}
-                        color="inherit"
+                    <Box onClick={handleLogoClick}>
+                        <Typography
+                            variant="h6"
+                            noWrap
+                            component="a"
+                            sx={{
+                                mr: 2,
+                                display: { xs: 'none', md: 'flex' },
+                                fontFamily: 'monospace',
+                                fontWeight: 700,
+                                letterSpacing: '.1rem',
+                                color: 'inherit',
+                                textDecoration: 'none',
+                            }}
                         >
-                        <MenuIcon />
-                        </IconButton>
+                            {/* put logo here */}
+                            <Box sx={{ padding: '.25em' }}>
+                                <img src={bookData.logoUrl} alt="Book Logo" width={50} height={50} />
+                            </Box>
+                            {bookData.name}
+                        </Typography>
+                    </Box>
+                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+                        
                         <Menu
                         id="menu-appbar"
                         anchorEl={anchorElNav}
@@ -94,8 +94,14 @@ export default function BookNavBar({ bookId }) {
                         }}
                         >
                         {pages.map((page) => (
-                            <MenuItem key={page} onClick={() => handlePush(page)}>
-                            <Typography textAlign="center">{page}</Typography>
+                            <MenuItem 
+                                key={page} 
+                                onClick={() => handlePush(page)}
+                                sx={{
+                                    backgroundColor: contentType === page ? 'primary.main' : 'inherit'
+                                }}
+                            >
+                                <Typography textAlign="center">{page}</Typography>
                             </MenuItem>
                         ))}
                         <MenuItem onClick={handleClickDashboard}>
