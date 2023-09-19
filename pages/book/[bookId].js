@@ -14,10 +14,9 @@ export default function BookPage() {
   const formattedBookId = bookId ? bookId.toString() : '';
   
   // auth verification
-  const { authUser, isLoading } = useAuth();
+  const { authUser, isLoading, setIsLoading } = useAuth();
 
   const [book, setBook] = useState({});
-  const [isLoadingBook, setIsloadingBook] = useState(true);
   const [content, setContent] = useState('overview');
 
   const availableContents = {
@@ -41,7 +40,8 @@ export default function BookPage() {
     }
 
     const fetchBook = async () => {
-      const unsubscribe = await getBook(formattedBookId, setBook, setIsloadingBook).catch((err) => {
+      setIsLoading(true);
+      const unsubscribe = await getBook(formattedBookId, setBook, setIsLoading).catch((err) => {
         console.error("catch the throwed err from getBook function: ", err);
       });
       
@@ -65,7 +65,7 @@ export default function BookPage() {
   const RenderedContent = availableContents[content] || OverviewContent;
   
 
-  return ((!authUser || isLoadingBook) ?
+  return ((!authUser || isLoading) ?
     <CircularProgress color="inherit" sx={{ marginLeft: '50%', marginTop: '25%' }}/>
     :
     <>
