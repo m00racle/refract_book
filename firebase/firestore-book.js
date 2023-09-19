@@ -54,7 +54,7 @@ export async function addBook(uid, bookData) {
     });
 }
 
-export async function getAllBooks (uid,  setBooks, setIsLoadingBooks) {
+export async function getAllBooks (uid,  setBooks, setIsLoading) {
     // show all books related to specific uid.
     const booksQuery = query(collection(db, BOOK_COLLECTION),
     where("refs.user_id", "==", uid),
@@ -70,7 +70,7 @@ export async function getAllBooks (uid,  setBooks, setIsLoadingBooks) {
             });
         }
         setBooks(allBooks);
-        setIsLoadingBooks(false);
+        setIsLoading(false);
     });
     // stop listening to database
     return unsubscribe;
