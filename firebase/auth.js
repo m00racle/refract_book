@@ -55,7 +55,7 @@ export default function useFirebaseAuth() {
     // I think I need to put signout also
     const signOut = () => authSignOut(auth);
 
-    return {authUser, isLoading, signOut};
+    return {authUser, isLoading, setIsLoading, signOut};
 }
 
 // Build context that convey the objects consist of things uid, email, loading state, and function to signOut.

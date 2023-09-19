@@ -9,16 +9,15 @@ import { useRouter } from 'next/router';
 import { getAllBooks, deleteBook } from '../firebase/firestore-book';
 
 const Dashboard = () => {
-  // state for user auth :
-  const { authUser, isLoading } = useAuth();
+  // state for user auth : destructure useAuth except for signOut function:
+  const { authUser, isLoading, setIsLoading } = useAuth();
 
   // prepare router to redirect user if not signed in
   const router = useRouter();
 
-  // delete the book:
   const [books, setBooks] = useState([]);
-  const [isLoadingBooks, setIsLoadingBooks] = useState(true);
 
+  // delete the book:
   const handleDeleteBook = async (bookId) => {
     try {
       await deleteBook(bookId, authUser.uid);
@@ -40,7 +39,8 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchBooks = async () => {
       if (authUser) {
-        const unsubscribe = await getAllBooks(authUser.uid, setBooks, setIsLoadingBooks);
+        setIsLoading(true);
+        const unsubscribe = await getAllBooks(authUser.uid, setBooks, setIsLoading);
         return () => unsubscribe();
       }
     };
@@ -49,7 +49,7 @@ const Dashboard = () => {
     
   }, [authUser]);
 
-  return ((!authUser || isLoadingBooks) ? 
+  return ((!authUser || isLoading) ? 
     <CircularProgress color='inherit' sx={{marginLeft: '50%', marginTop: '25%'}}/>
     :
     <div>
