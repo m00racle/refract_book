@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "jest --testPathPattern __tests__/ && jest --testPathPattern firebase-test/ --testEnvironment=node",
+    "test": "jest --testPathPattern __tests__/ && jest --testPathPattern __fire_tests__/ --testEnvironment=node",
     "test:ci": "jest --ci"
   },
   "keywords": [],
