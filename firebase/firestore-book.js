@@ -16,7 +16,7 @@ export async function addBook(uid, bookData, dBase=db) {
     );
 
     const bookIdQuerySnapshot = await getDocs(bookIdQuery).catch((err) => {
-        console.error('Error querying books: ', err);
+        // console.error('Error querying books: ', err);
         throw err;
     });
 
