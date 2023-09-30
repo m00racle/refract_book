@@ -5,30 +5,45 @@ import {
     RulesTestEnvironment,
 } from "@firebase/rules-unit-testing";
 import { readFileSync } from "node:fs";
-import { doc, getDoc, addDoc, collection } from "firebase/firestore";
+import { doc, getDoc, addDoc, collection, setLogLevel } from "firebase/firestore";
 import { expectFirestorePermissionDenied } from "../firebase/utils";
 
 //  const MY_PROJECT_ID = "refract-book";
+let testEnv; // <-- CAUTION: I always forget to define it here since it is global var!
 
- describe("firestore-book rules", () => {
+beforeAll(async () => {
+    // silence expected rules rejections from firestore SDK. 
+    // unexpected rejection still bubble up and will be thrown as an error
+    setLogLevel('error');
+    // set the test environment
+    testEnv = await initializeTestEnvironment({
+        projectId: "refract-book",
+        firestore: {
+            host: "127.0.0.1",
+            port: 8080,
+            rules: readFileSync("firestore.rules","utf8")
+        },
+    });
+});
+
+afterAll(async () => {
+    // at this moment not yet I done need to do anything post testing
+});
+
+beforeEach(async () => {
+    // clear firestore
+    await testEnv.clearFirestore();
+});
+
+describe("firestore-book rules", () => {
     test("Understand basic addition", () => {
         expect(2 + 2).toBe(4);
     });
 
     test("Unauthorized user must not add doc", async() => {
-        // set the test environment
-        let testEnv = await initializeTestEnvironment({
-            projectId: "refract-book",
-            firestore: {
-                host: "127.0.0.1",
-                port: 8080,
-                rules: readFileSync("firestore.rules","utf8")
-            },
-        });
-
         // make unauth context
         let unauthDb = testEnv.unauthenticatedContext().firestore();
         await expectFirestorePermissionDenied(addDoc(collection(unauthDb, "books"),{name: "book1"}));
     });
     
- });
+});
