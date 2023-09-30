@@ -48,6 +48,13 @@ describe("firestore-book rules", () => {
     });
     
     test("Unauth user cant addBook", async() => {
+        /*  
+        CAUTION: this test is not complete!!!
+        in the end there is always async step that is not closed!
+        Thus I need to add --detectOpenHandles --runInBand --forceExit to jest run!!
+        CONSIDER to fix or abandon this kind of test
+        focus on firestore rules!
+        */
         let unauthDb2 = testEnv.unauthenticatedContext().firestore();
         await assertFails(addBook("",{
             refs: {
@@ -62,6 +69,21 @@ describe("firestore-book rules", () => {
         }, unauthDb2).catch((error) => {
             // trhow the error
             throw error;
+        }));
+    });
+
+    test("Auth user can addDoc firestore", async() => {
+        let aliceDb = testEnv.authenticatedContext('alice').firestore();
+        await assertSucceeds(addDoc(collection(aliceDb, "books"),{
+            refs: {
+                user_id: "alice",
+                book_ref: 1
+            },
+            name: "Book sample",
+            initial: "BS",
+            email: "alice@example.com",
+            business_type: "perseroan",
+            npwp:""
         }));
     });
 });
