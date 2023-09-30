@@ -6,6 +6,7 @@ import {
 } from "@firebase/rules-unit-testing";
 import { readFileSync } from "node:fs";
 import { doc, getDoc, addDoc, collection } from "firebase/firestore";
+import { expectFirestorePermissionDenied } from "../firebase/utils";
 
 //  const MY_PROJECT_ID = "refract-book";
 
@@ -27,7 +28,7 @@ import { doc, getDoc, addDoc, collection } from "firebase/firestore";
 
         // make unauth context
         let unauthDb = testEnv.unauthenticatedContext().firestore();
-        await assertFails(addDoc(collection(unauthDb, "books"),{name: "book1"}));
+        await expectFirestorePermissionDenied(addDoc(collection(unauthDb, "books"),{name: "book1"}));
     });
     
  });
