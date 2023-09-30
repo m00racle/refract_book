@@ -5,11 +5,11 @@ import { deleteStorageFolder, uploadImageToStorage } from './storage';
 
 const BOOK_COLLECTION = 'books';
 
-export async function addBook(uid, bookData) {
+export async function addBook(uid, bookData, dBase=db) {
     // function to handle add new book to firestore
     let book_ref;
     const bookIdQuery = query(
-        collection(db, BOOK_COLLECTION),
+        collection(dBase, BOOK_COLLECTION),
         where('refs.user_id', '==', uid),
         orderBy('refs.book_ref', 'desc'),
         limit(1)
@@ -48,7 +48,7 @@ export async function addBook(uid, bookData) {
         logoUrl: downloadUrl
     };
 
-    await addDoc(collection(db, BOOK_COLLECTION), bookDocData).catch((err) => {
+    await addDoc(collection(dBase, BOOK_COLLECTION), bookDocData).catch((err) => {
         console.error("Error adding book: ", err);
         throw err;
     });

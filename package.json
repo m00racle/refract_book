@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "jest --testPathPattern __tests__/ && jest --testPathPattern __fire_tests__/ --testEnvironment=node",
+    "test": "jest --testPathPattern __tests__/ && jest --testPathPattern __fire_tests__/ --testEnvironment=node --detectOpenHandles --runInBand --forceExit",
     "test:ci": "jest --ci"
   },
   "keywords": [],

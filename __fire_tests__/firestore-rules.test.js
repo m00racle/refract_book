@@ -7,6 +7,7 @@ import {
 import { readFileSync } from "node:fs";
 import { doc, getDoc, addDoc, collection, setLogLevel } from "firebase/firestore";
 import { expectFirestorePermissionDenied } from "../firebase/utils";
+import { addBook } from "../firebase/firestore-book";
 
 //  const MY_PROJECT_ID = "refract-book";
 let testEnv; // <-- CAUTION: I always forget to define it here since it is global var!
@@ -46,4 +47,21 @@ describe("firestore-book rules", () => {
         await expectFirestorePermissionDenied(addDoc(collection(unauthDb, "books"),{name: "book1"}));
     });
     
+    test("Unauth user cant addBook", async() => {
+        let unauthDb2 = testEnv.unauthenticatedContext().firestore();
+        await assertFails(addBook("",{
+            refs: {
+                user_id: "alice",
+                book_ref: 1
+            },
+            name: "Book sample",
+            initial: "BS",
+            email: "alice@example.com",
+            business_type: "perseroan",
+            npwp:""
+        }, unauthDb2).catch((error) => {
+            // trhow the error
+            throw error;
+        }));
+    });
 });
