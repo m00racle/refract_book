@@ -28,7 +28,11 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-    // at this moment not yet I done need to do anything post testing
+    // clear the firestore database after the last test is done.
+    await testEnv.clearFirestore();
+    // clean up all rules test environment 
+    // to avoid any left over async processed that prevent test to finish!!
+    await testEnv.cleanup();
 });
 
 beforeEach(async () => {
@@ -48,13 +52,7 @@ describe("firestore-book rules", () => {
     });
     
     test("Unauth user cant addBook", async() => {
-        /*  
-        CAUTION: this test is not complete!!!
-        in the end there is always async step that is not closed!
-        Thus I need to add --detectOpenHandles --runInBand --forceExit to jest run!!
-        CONSIDER to fix or abandon this kind of test
-        focus on firestore rules!
-        */
+        
         let unauthDb2 = testEnv.unauthenticatedContext().firestore();
         await assertFails(addBook("",{
             refs: {
