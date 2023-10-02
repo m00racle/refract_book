@@ -6,7 +6,7 @@ import {
 } from "@firebase/rules-unit-testing";
 import { readFileSync } from "node:fs";
 import { doc, getDoc, addDoc, collection, setLogLevel } from "firebase/firestore";
-import { expectFirestorePermissionDenied } from "../firebase/utils";
+import { expectFirestorePermissionDenied } from "./utils";
 import { addBook } from "../firebase/firestore-book";
 
 //  const MY_PROJECT_ID = "refract-book";
