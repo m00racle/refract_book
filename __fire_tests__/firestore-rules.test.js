@@ -7,7 +7,7 @@ import {
 import { readFileSync } from "node:fs";
 import { doc, getDoc, addDoc, collection, setLogLevel, onSnapshot, query, setDoc } from "firebase/firestore";
 import { expectFirestorePermissionDenied } from "./utils";
-import { addBook } from "../firebase/firestore-book";
+import { addBook, getAllBooks } from "../firebase/firestore-book";
 
 //  const MY_PROJECT_ID = "refract-book";
 let testEnv; // <-- CAUTION: I always forget to define it here since it is global var!
@@ -125,5 +125,16 @@ describe("firestore-book rules", () => {
         
         const docRef = doc(bruceDb, "books", 'bruce-book');
         await assertSucceeds(getDoc(docRef));
+    });
+
+    test("get all books", async () => {
+        // TODO: open getAllBooks and change the dBase
+        // TODO arrange : create mock functions
+
+        // TODO arrange : create mock database using withSecurityRulesDisabled
+
+        // TODO: call the getAllBooks function 
+
+        // Assert:
     });
 });
