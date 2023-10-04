@@ -5,7 +5,7 @@ import {
     RulesTestEnvironment,
 } from "@firebase/rules-unit-testing";
 import { readFileSync } from "node:fs";
-import { doc, getDoc, addDoc, collection, setLogLevel } from "firebase/firestore";
+import { doc, getDoc, addDoc, collection, setLogLevel, onSnapshot, query, setDoc } from "firebase/firestore";
 import { expectFirestorePermissionDenied } from "./utils";
 import { addBook } from "../firebase/firestore-book";
 
@@ -83,5 +83,26 @@ describe("firestore-book rules", () => {
             business_type: "perseroan",
             npwp:""
         }));
+    });
+
+    test('Auth user cannot get data that not owned', async () => {
+        // looks like this should be get rather than onSnapshot!
+        await testEnv.withSecurityRulesDisabled(async (context) => {
+            await setDoc(doc(context.firestore(), 'books/bruce-book'), {
+                refs: {
+                    user_id: "bruce",
+                    book_ref: 1
+                },
+                name: "Book sample",
+                initial: "BS",
+                email: "alice@example.com",
+                business_type: "perseroan",
+                npwp:""
+            });
+        });
+        let aliceDb = testEnv.authenticatedContext('alice').firestore();
+        
+        const docRef = doc(aliceDb, "books", 'bruce-book');
+        await assertFails(getDoc(docRef));
     });
 });
