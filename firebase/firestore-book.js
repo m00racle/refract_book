@@ -54,9 +54,9 @@ export async function addBook(uid, bookData, dBase=db) {
     });
 }
 
-export async function getAllBooks (uid,  setBooks, setIsLoading) {
+export async function getAllBooks (uid,  setBooks, setIsLoading, dBase=db) {
     // show all books related to specific uid.
-    const booksQuery = query(collection(db, BOOK_COLLECTION),
+    const booksQuery = query(collection(dBase, BOOK_COLLECTION),
     where("refs.user_id", "==", uid),
     orderBy("refs.book_ref", 'desc'));
     

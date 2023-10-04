@@ -128,14 +128,59 @@ describe("firestore-book rules", () => {
     });
 
     test("get all books", async () => {
-        // TODO: open getAllBooks and change the dBase
-        // TODO arrange : create mock functions
+        
+        //  arrange : create mock functions
+        mockIsLoading = jest.fn();
+        mockBooks = jest.fn(x => x);
 
-        // TODO arrange : create mock database using withSecurityRulesDisabled
+        //  arrange : create mock database using withSecurityRulesDisabled
+        await testEnv.withSecurityRulesDisabled(async (context) => {
+            await setDoc(doc(context.firestore(), 'books/alice-book2'), {
+                refs: {
+                    user_id: "alice",
+                    book_ref: 4
+                },
+                name: "Book sample4",
+            });
+        });
 
-        // TODO: call the getAllBooks function 
+        await testEnv.withSecurityRulesDisabled(async (context) => {
+            await setDoc(doc(context.firestore(), 'books/alice-book1'), {
+                refs: {
+                    user_id: "alice",
+                    book_ref: 3
+                },
+                name: "Book sample3",
+            });
+        });
+
+        await testEnv.withSecurityRulesDisabled(async (context) => {
+            await setDoc(doc(context.firestore(), 'books/bruce-book1'), {
+                refs: {
+                    user_id: "bruce",
+                    book_ref: 2
+                },
+                name: "Book sample2",
+            });
+        });
+
+        await testEnv.withSecurityRulesDisabled(async (context) => {
+            await setDoc(doc(context.firestore(), 'books/charlie-book1'), {
+                refs: {
+                    user_id: "charlie",
+                    book_ref: 1
+                },
+                name: "Book sample1",
+            });
+        });
+
+        //  call the getAllBooks function 
+        let aliceDb = testEnv.authenticatedContext('alice').firestore();
+        // getAllBooks('alice', mockBooks, mockIsLoading, aliceDb);
 
         // Assert:
-        expect(true).toBe(true);
+        // expect(true).toBe(true);
+        const docRef = doc(aliceDb, "books", 'alice-book2');
+        await assertSucceeds(getDoc(docRef));
     });
 });
