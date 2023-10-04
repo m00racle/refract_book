@@ -133,46 +133,47 @@ describe("firestore-book rules", () => {
         mockIsLoading = jest.fn();
         mockBooks = jest.fn(x => x);
 
-        //  arrange : create mock database using withSecurityRulesDisabled
-        await testEnv.withSecurityRulesDisabled(async (context) => {
-            await setDoc(doc(context.firestore(), 'books/alice-book2'), {
-                refs: {
-                    user_id: "alice",
-                    book_ref: 4
-                },
-                name: "Book sample4",
-            });
-        });
+        // Arrange: Create mock database using withSecurityRulesDisabled
+        const books = [
+            {
+            id: "alice-book2",
+            refs: {
+                user_id: "alice",
+                book_ref: 4
+            },
+            name: "Book sample4"
+            },
+            {
+            id: "alice-book1",
+            refs: {
+                user_id: "alice",
+                book_ref: 3
+            },
+            name: "Book sample3"
+            },
+            {
+            id: "bruce-book1",
+            refs: {
+                user_id: "bruce",
+                book_ref: 2
+            },
+            name: "Book sample2"
+            },
+            {
+            id: "charlie-book1",
+            refs: {
+                user_id: "charlie",
+                book_ref: 1
+            },
+            name: "Book sample1"
+            }
+        ];
 
-        await testEnv.withSecurityRulesDisabled(async (context) => {
-            await setDoc(doc(context.firestore(), 'books/alice-book1'), {
-                refs: {
-                    user_id: "alice",
-                    book_ref: 3
-                },
-                name: "Book sample3",
+        for (const book of books) {
+            await testEnv.withSecurityRulesDisabled(async (context) => {
+                await setDoc(doc(context.firestore(), "books", book.id), book);
             });
-        });
-
-        await testEnv.withSecurityRulesDisabled(async (context) => {
-            await setDoc(doc(context.firestore(), 'books/bruce-book1'), {
-                refs: {
-                    user_id: "bruce",
-                    book_ref: 2
-                },
-                name: "Book sample2",
-            });
-        });
-
-        await testEnv.withSecurityRulesDisabled(async (context) => {
-            await setDoc(doc(context.firestore(), 'books/charlie-book1'), {
-                refs: {
-                    user_id: "charlie",
-                    book_ref: 1
-                },
-                name: "Book sample1",
-            });
-        });
+        };
 
         //  call the getAllBooks function 
         let aliceDb = testEnv.authenticatedContext('alice').firestore();
