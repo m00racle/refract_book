@@ -8,6 +8,7 @@ import { readFileSync } from "node:fs";
 import { doc, getDoc, addDoc, collection, setLogLevel, onSnapshot, query, setDoc } from "firebase/firestore";
 import { expectFirestorePermissionDenied } from "./utils";
 import { addBook, getAllBooks } from "../firebase/firestore-book";
+import { useState } from "react";
 
 //  const MY_PROJECT_ID = "refract-book";
 let testEnv; // <-- CAUTION: I always forget to define it here since it is global var!
@@ -127,17 +128,16 @@ describe("firestore-book rules", () => {
         await assertSucceeds(getDoc(docRef));
     });
 
-    test("get all books", async () => {
-        var bookList;
+    test("get all books exist", async () => {
+        var books = [];
         //  arrange : create mock functions
-        mockIsLoading = jest.fn();
-        mockBooks = jest.fn((x) => {
-            bookList = [];
-            bookList = x;
+        const setIsLoading = jest.fn();
+        const setBooks = jest.fn((x) => {
+            books = books.push("test");
         });
 
         // Arrange: Create mock database using withSecurityRulesDisabled
-        const books = [
+        const bookList = [
             {
             id: "alice-book2",
             refs: {
@@ -172,7 +172,7 @@ describe("firestore-book rules", () => {
             }
         ];
 
-        for (const book of books) {
+        for (const book of bookList) {
             await testEnv.withSecurityRulesDisabled(async (context) => {
                 await setDoc(doc(context.firestore(), "books", book.id), book);
             });
@@ -180,15 +180,11 @@ describe("firestore-book rules", () => {
 
         //  call the getAllBooks function 
         let aliceDb = testEnv.authenticatedContext('alice').firestore();
-        const result = getAllBooks('alice', mockBooks, mockIsLoading, aliceDb);
+        const result = await getAllBooks('alice', setBooks, setIsLoading, aliceDb);
 
         // Assert:
-        // expect(true).toBe(true);
-        // const docRef = doc(aliceDb, "books", 'alice-book2');
-        // await assertSucceeds(getDoc(docRef));
-        // expect(mockBooks.mock.result[0].value).toBe([]);
+        // console.log(result);
+        // console.log(books);
         expect(result).toBeDefined();
-        // expect(bookList.length).toBe(2);
-        // CAUTION: the latest bookList still have undefined value!!
     });
 });
