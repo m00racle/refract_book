@@ -241,4 +241,55 @@ describe("firestore-book rules", () => {
         // assert
         expect(result).toBeDefined();
     });
+
+    test("getBook auth but not available failed", async () => {
+        const mockIsLoading = jest.fn();
+        const mockBook = jest.fn();
+
+        // Arrange: Create mock database using withSecurityRulesDisabled
+        const bookList = [
+            {
+            id: "alice-book2",
+            refs: {
+                user_id: "alice",
+                book_ref: 4
+            },
+            name: "Book sample4"
+            },
+            {
+            id: "alice-book1",
+            refs: {
+                user_id: "alice",
+                book_ref: 3
+            },
+            name: "Book sample3"
+            },
+            {
+            id: "bruce-book1",
+            refs: {
+                user_id: "bruce",
+                book_ref: 2
+            },
+            name: "Book sample2"
+            },
+            {
+            id: "charlie-book1",
+            refs: {
+                user_id: "charlie",
+                book_ref: 1
+            },
+            name: "Book sample1"
+            }
+        ];
+
+        for (const book of bookList) {
+            await testEnv.withSecurityRulesDisabled(async (context) => {
+                await setDoc(doc(context.firestore(), "books", book.id), book);
+            });
+        };
+
+        //  call the getAllBooks function 
+        let aliceDb = testEnv.authenticatedContext('alice').firestore();
+        await assertFails(getBook('alice-book5', mockBook, mockIsLoading, aliceDb));
+    });
 });
