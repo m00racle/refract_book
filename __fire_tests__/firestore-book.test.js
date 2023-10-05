@@ -133,7 +133,7 @@ describe("firestore-book rules", () => {
         //  arrange : create mock functions
         const setIsLoading = jest.fn();
         const setBooks = jest.fn((x) => {
-            books = books.push("test");
+            books = books.concat(x);
         });
 
         // Arrange: Create mock database using withSecurityRulesDisabled
