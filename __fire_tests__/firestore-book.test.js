@@ -7,7 +7,7 @@ import {
 import { readFileSync } from "node:fs";
 import { doc, getDoc, addDoc, collection, setLogLevel, onSnapshot, query, setDoc } from "firebase/firestore";
 import { expectFirestorePermissionDenied } from "./utils";
-import { addBook, getAllBooks } from "../firebase/firestore-book";
+import { addBook, getAllBooks, getBook } from "../firebase/firestore-book";
 import { useState } from "react";
 
 //  const MY_PROJECT_ID = "refract-book";
@@ -185,6 +185,60 @@ describe("firestore-book rules", () => {
         // Assert:
         // console.log(result);
         // console.log(books);
+        expect(result).toBeDefined();
+    });
+
+    test("getBook available return defined", async () => {
+        const mockIsLoading = jest.fn();
+        const mockBook = jest.fn();
+
+        // Arrange: Create mock database using withSecurityRulesDisabled
+        const bookList = [
+            {
+            id: "alice-book2",
+            refs: {
+                user_id: "alice",
+                book_ref: 4
+            },
+            name: "Book sample4"
+            },
+            {
+            id: "alice-book1",
+            refs: {
+                user_id: "alice",
+                book_ref: 3
+            },
+            name: "Book sample3"
+            },
+            {
+            id: "bruce-book1",
+            refs: {
+                user_id: "bruce",
+                book_ref: 2
+            },
+            name: "Book sample2"
+            },
+            {
+            id: "charlie-book1",
+            refs: {
+                user_id: "charlie",
+                book_ref: 1
+            },
+            name: "Book sample1"
+            }
+        ];
+
+        for (const book of bookList) {
+            await testEnv.withSecurityRulesDisabled(async (context) => {
+                await setDoc(doc(context.firestore(), "books", book.id), book);
+            });
+        };
+
+        //  call the getAllBooks function 
+        let aliceDb = testEnv.authenticatedContext('alice').firestore();
+        const result = getBook('alice-book1', mockBook, mockIsLoading, aliceDb);
+
+        // assert
         expect(result).toBeDefined();
     });
 });
