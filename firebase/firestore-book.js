@@ -76,9 +76,9 @@ export async function getAllBooks (uid,  setBooks, setIsLoading, dBase=db) {
     return unsubscribe;
 }
 
-export async function getBook (bookId, setBook, setIsLoadingBooks) {
+export async function getBook (bookId, setBook, setIsLoadingBooks, dBase=db) {
     // show specific book
-    const docRef = doc(db, BOOK_COLLECTION, bookId);
+    const docRef = doc(dBase, BOOK_COLLECTION, bookId);
     const docSnap = await getDoc(docRef).catch((err) => {
         console.error("Error get a book: ", err);
         throw err;
@@ -112,9 +112,9 @@ export async function editBook () {
     // edit specific book
 }
 
-export async function deleteBook (bookId, uid) {
+export async function deleteBook (bookId, uid, dBase=db) {
     // fetch the book data
-    const docRef = doc(db, BOOK_COLLECTION, bookId);
+    const docRef = doc(dBase, BOOK_COLLECTION, bookId);
     const bookSnap = await getDoc(docRef).catch((err) => {
         console.error("Error get a book: ", err);
         throw err;
