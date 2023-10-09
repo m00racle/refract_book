@@ -66,4 +66,16 @@ describe("firestore-account rules", () => {
             test authorized user must be able to add accounts
         */
     });
+
+    test("only able to get account from valid book", async () => {
+        /*  
+            test that if passing non valid book it will failed to get account data.
+        */
+    });
+
+    test("only authentiacated user can delete the account", async () => {
+        /*  
+            test only authenticated user can delete the account
+        */
+    });
 });
