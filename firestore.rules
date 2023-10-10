@@ -10,6 +10,14 @@ service cloud.firestore {
       // Allow users to read, update, and delete a book if ref.user_id == uid from auth
       allow read, update, delete: if request.auth != null && resource.data.refs.user_id == request.auth.uid;
     }
+
+    match /books/{bookId}/accounts/{accountId} {
+      // TODO: allow authenticated and designated owner of the book to set account (still failed)
+      allow create: if request.auth != null;
+
+      // others false
+      allow read, update, delete: if false;
+    }
     
     // Deny access to other collections and documents
     match /{document=**} {
