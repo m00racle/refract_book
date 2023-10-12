@@ -67,10 +67,7 @@ export async function getAllBooks (uid,  setBooks, setIsLoading, dBase=db) {
         let allBooks = [];
         for (const documentSnapshot of snapshot.docs) {
             const book = documentSnapshot.data();
-            allBooks.push({
-                ...book,
-                id: documentSnapshot.id
-            });
+            allBooks.push({ ...book });
         }
         setBooks(allBooks);
         setIsLoading(false);
