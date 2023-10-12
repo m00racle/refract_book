@@ -42,10 +42,7 @@ beforeEach(async () => {
 });
 
 describe("firestore-book rules", () => {
-    test("Understand basic addition", () => {
-        expect(2 + 2).toBe(4);
-    });
-
+    
     test("Unauthorized user must not add doc", async() => {
         // make unauth context
         let unauthDb = testEnv.unauthenticatedContext().firestore();
@@ -58,7 +55,6 @@ describe("firestore-book rules", () => {
         await assertFails(addBook("",{
             refs: {
                 user_id: "alice",
-                book_ref: 1
             },
             name: "Book sample",
             initial: "BS",
@@ -71,12 +67,25 @@ describe("firestore-book rules", () => {
         }));
     });
 
+    test("Auth intended user cannot addDoc", async() => {
+        let bruceDb = testEnv.authenticatedContext('bruce').firestore();
+        await assertFails(addDoc(collection(bruceDb, "books"),{
+            refs: {
+                user_id: "alice",
+            },
+            name: "Book sample",
+            initial: "BS",
+            email: "alice@example.com",
+            business_type: "perseroan",
+            npwp:""
+        }));
+    });
+
     test("Auth user can addDoc firestore", async() => {
         let aliceDb = testEnv.authenticatedContext('alice').firestore();
         await assertSucceeds(addDoc(collection(aliceDb, "books"),{
             refs: {
                 user_id: "alice",
-                book_ref: 1
             },
             name: "Book sample",
             initial: "BS",
@@ -92,7 +101,6 @@ describe("firestore-book rules", () => {
             await setDoc(doc(context.firestore(), 'books/bruce-book'), {
                 refs: {
                     user_id: "bruce",
-                    book_ref: 1
                 },
                 name: "Book sample",
                 initial: "BS",
@@ -113,7 +121,6 @@ describe("firestore-book rules", () => {
             await setDoc(doc(context.firestore(), 'books/bruce-book'), {
                 refs: {
                     user_id: "bruce",
-                    book_ref: 1
                 },
                 name: "Book sample",
                 initial: "BS",
@@ -142,7 +149,6 @@ describe("firestore-book rules", () => {
             id: "alice-book2",
             refs: {
                 user_id: "alice",
-                book_ref: 4
             },
             name: "Book sample4"
             },
@@ -150,7 +156,6 @@ describe("firestore-book rules", () => {
             id: "alice-book1",
             refs: {
                 user_id: "alice",
-                book_ref: 3
             },
             name: "Book sample3"
             },
@@ -158,7 +163,6 @@ describe("firestore-book rules", () => {
             id: "bruce-book1",
             refs: {
                 user_id: "bruce",
-                book_ref: 2
             },
             name: "Book sample2"
             },
@@ -166,7 +170,6 @@ describe("firestore-book rules", () => {
             id: "charlie-book1",
             refs: {
                 user_id: "charlie",
-                book_ref: 1
             },
             name: "Book sample1"
             }
@@ -198,7 +201,6 @@ describe("firestore-book rules", () => {
             id: "alice-book2",
             refs: {
                 user_id: "alice",
-                book_ref: 4
             },
             name: "Book sample4"
             },
@@ -206,7 +208,6 @@ describe("firestore-book rules", () => {
             id: "alice-book1",
             refs: {
                 user_id: "alice",
-                book_ref: 3
             },
             name: "Book sample3"
             },
@@ -214,7 +215,6 @@ describe("firestore-book rules", () => {
             id: "bruce-book1",
             refs: {
                 user_id: "bruce",
-                book_ref: 2
             },
             name: "Book sample2"
             },
@@ -222,7 +222,6 @@ describe("firestore-book rules", () => {
             id: "charlie-book1",
             refs: {
                 user_id: "charlie",
-                book_ref: 1
             },
             name: "Book sample1"
             }
