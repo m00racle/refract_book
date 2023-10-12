@@ -124,24 +124,26 @@ export async function deleteBook (bookId, uid, dBase=db) {
     });
     // extract the data from bookSnap
     const bookData = bookSnap.data();
-    const bookRef = bookData.refs.book_ref; //<-- TODO: this will create error no more book_ref
-    const storagePath = `${uid}/${bookRef}`;
+    // const bookRef = bookData.refs.book_ref; //<-- TODO: this will create error no more book_ref
     
     // delete specific book
     try {
         await deleteDoc(docRef);
         
-        console.log('Book deleted successfully');
+        // console.log('Book deleted successfully');
     } catch (error) {
-        console.error('Error deleting book: ', error);
+        // console.error('Error deleting book: ', error);
         throw error;
     }
 
     // delete the folder:
-    try {
-        await deleteStorageFolder(storagePath);
-    } catch (error) {
-        console.error('catch error from deleteStorageFolder: ', error);
-        // throw error;
+    if (bookData.logoUrl) {
+        try {
+            const storagePath = `${uid}/${bookId}`;
+            await deleteStorageFolder(storagePath);
+        } catch (error) {
+            // console.error('catch error from deleteStorageFolder: ', error);
+            throw error;
+        }
     }
 }
