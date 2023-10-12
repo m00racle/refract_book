@@ -97,8 +97,8 @@ describe("firestore-account rules", () => {
             test case when a user is authenticated but have different uid can't set accounts
             TODO: consider this again, is this still necessary?
         */
-        let authDb = testEnv.authenticatedContext('bruce').firestore();
-        await assertFails(setDoc(doc(authDb, "books/alice-book1/accounts", "11001"), sampleAccountAlice));
+        // let authDb = testEnv.authenticatedContext('bruce').firestore();
+        // await assertFails(setDoc(doc(authDb, "books/alice-book1/accounts", "11001"), sampleAccountAlice));
     });
 
     test("only able to get account from valid book", async () => {

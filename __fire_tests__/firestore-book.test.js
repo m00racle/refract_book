@@ -42,27 +42,13 @@ beforeEach(async () => {
 });
 
 describe("firestore-book rules", () => {
-    
+    /* 
+        test for all firestore rules related to firestore-book.js
+    */
     test("Unauthorized user must not add doc", async() => {
         // make unauth context
         let unauthDb = testEnv.unauthenticatedContext().firestore();
         await expectFirestorePermissionDenied(addDoc(collection(unauthDb, "books"),{name: "book1"}));
-    });
-    
-    test("Unauth user cant addBook", async() => {
-        const unauthDb = testEnv.unauthenticatedContext().firestore();
-        const uidTest = "alice";
-        const bookData = {
-        name: "Book sample",
-        initial: "BS",
-        email: "alice@example.com",
-        selectedCompanyType: "perseroan",
-        npwp: "",
-        logoFile: undefined
-        };
-      
-        // Pass the same database instance to the addBook() function that you are using in your test
-        await assertFails(addBook(uidTest, bookData, unauthDb));
     });
 
     test("Auth unintended user cannot addDoc", async() => {
@@ -132,6 +118,27 @@ describe("firestore-book rules", () => {
         const docRef = doc(bruceDb, "books", 'bruce-book');
         await assertSucceeds(getDoc(docRef));
     });
+});
+
+describe("firestore-book implementations", () => {
+    /* 
+        test for firestore-book.js implementations
+    */
+    test("Unauth user cant addBook", async() => {
+        const unauthDb = testEnv.unauthenticatedContext().firestore();
+        const uidTest = "alice";
+        const bookData = {
+        name: "Book sample",
+        initial: "BS",
+        email: "alice@example.com",
+        selectedCompanyType: "perseroan",
+        npwp: "",
+        logoFile: undefined
+        };
+      
+        // Pass the same database instance to the addBook() function that you are using in your test
+        await assertFails(addBook(uidTest, bookData, unauthDb));
+    });
 
     test("get all books exist", async () => {
         var books = [];
@@ -182,10 +189,6 @@ describe("firestore-book rules", () => {
         //  call the getAllBooks function 
         let aliceDb = testEnv.authenticatedContext('alice').firestore();
         const result = await getAllBooks('alice', setBooks, setIsLoading, aliceDb);
-
-        // Assert:
-        // console.log(result);
-        // console.log(books);
         expect(result).toBeDefined();
     });
 
