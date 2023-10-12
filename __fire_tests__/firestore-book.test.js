@@ -158,7 +158,7 @@ describe("firestore-book implementations", () => {
             email: "user@example.com",
             selectedCompanyType: "komanditer",
             npwp: "12345",
-            logoFile: undefined
+            logoFile: "./budget.png"
         };
 
         // preps:

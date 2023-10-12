@@ -119,12 +119,12 @@ export async function deleteBook (bookId, uid, dBase=db) {
     // fetch the book data
     const docRef = doc(dBase, BOOK_COLLECTION, bookId);
     const bookSnap = await getDoc(docRef).catch((err) => {
-        console.error("Error get a book: ", err);
+        // console.error("Error get a book: ", err);
         throw err;
     });
     // extract the data from bookSnap
     const bookData = bookSnap.data();
-    const bookRef = bookData.refs.book_ref;
+    const bookRef = bookData.refs.book_ref; //<-- TODO: this will create error no more book_ref
     const storagePath = `${uid}/${bookRef}`;
     
     // delete specific book
