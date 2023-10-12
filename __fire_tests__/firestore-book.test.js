@@ -50,24 +50,22 @@ describe("firestore-book rules", () => {
     });
     
     test("Unauth user cant addBook", async() => {
-        
-        let unauthDb2 = testEnv.unauthenticatedContext().firestore();
-        await assertFails(addBook("",{
-            refs: {
-                user_id: "alice",
-            },
-            name: "Book sample",
-            initial: "BS",
-            email: "alice@example.com",
-            business_type: "perseroan",
-            npwp:""
-        }, unauthDb2).catch((error) => {
-            // trhow the error
-            throw error;
-        }));
+        const unauthDb = testEnv.unauthenticatedContext().firestore();
+        const uidTest = "alice";
+        const bookData = {
+        name: "Book sample",
+        initial: "BS",
+        email: "alice@example.com",
+        selectedCompanyType: "perseroan",
+        npwp: "",
+        logoFile: undefined
+        };
+      
+        // Pass the same database instance to the addBook() function that you are using in your test
+        await assertFails(addBook(uidTest, bookData, unauthDb));
     });
 
-    test("Auth intended user cannot addDoc", async() => {
+    test("Auth unintended user cannot addDoc", async() => {
         let bruceDb = testEnv.authenticatedContext('bruce').firestore();
         await assertFails(addDoc(collection(bruceDb, "books"),{
             refs: {
