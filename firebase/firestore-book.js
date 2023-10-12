@@ -90,12 +90,12 @@ export async function getBook (bookId, setBook, setIsLoadingBooks, dBase=db) {
     setIsLoadingBooks(false);
     if (docSnap.exists) {
         const bookData = docSnap.data();
-        setBook({id: docSnap.id, ...bookData});
+        setBook({ ...bookData });
         // listen to the real time changes
         const unsubscribe = onSnapshot(docRef, (docSnapshot) => {
             if (docSnapshot.exists()) {
                 const updatedBookData = docSnapshot.data();
-                setBook({id: docSnapshot.id, ...updatedBookData});
+                setBook({ ...updatedBookData });
             } else {
                 // show no books
                 setBook(undefined);
