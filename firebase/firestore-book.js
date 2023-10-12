@@ -28,6 +28,7 @@ export async function addBook(uid, bookData, dBase=db) {
     // upload the logo image to the storage first
     const imageFile = bookData.logoFile;
     if (imageFile instanceof Blob) {
+        // NOTE: for safety and testing reasons:
         fileType = imageFile.name.split('.').pop();
         storagePath = `${uid}/${docRef.id}/settings/logo.${fileType}`;
         downloadUrl = await uploadImageToStorage(imageFile, storagePath, fileType);

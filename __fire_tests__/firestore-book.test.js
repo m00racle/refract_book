@@ -9,6 +9,7 @@ import { doc, getDoc, addDoc, collection, setLogLevel, onSnapshot, query, setDoc
 import { expectFirestorePermissionDenied } from "./utils";
 import { addBook, getAllBooks, getBook } from "../firebase/firestore-book";
 import { useState } from "react";
+import path from "node:path";
 
 //  const MY_PROJECT_ID = "refract-book";
 let testEnv; // <-- CAUTION: I always forget to define it here since it is global var!
@@ -138,6 +139,33 @@ describe("firestore-book implementations", () => {
       
         // Pass the same database instance to the addBook() function that you are using in your test
         await assertFails(addBook(uidTest, bookData, unauthDb));
+    });
+
+    test("Auth user addBook", async () => {
+        /* 
+            test for authenticated user to addBook
+            NOTE: I can't add image (logo) to this test due to failing path.
+            I think it needs NextJS server side render to add the image using path.
+        */
+        // add image? still failed since path can't be initiated!
+        // const defaultLogoPath = path.join(".", "/budget.png");
+        // const logoBlob = await fetch(defaultLogoPath).then((res) => res.blob());
+        // const imageFile = new File([logoBlob], "budget.png", { type: "image/png" });
+        const uidTest = "alice";
+        const bookData = {
+            name: "Book Alice",
+            initial: "BA",
+            email: "user@example.com",
+            selectedCompanyType: "komanditer",
+            npwp: "12345",
+            logoFile: undefined
+        };
+
+        // preps:
+        const aliceDb = testEnv.authenticatedContext(uidTest).firestore();
+
+        // assert
+        await assertSucceeds(addBook(uidTest, bookData, aliceDb));
     });
 
     test("get all books exist", async () => {
