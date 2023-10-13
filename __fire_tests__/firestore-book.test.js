@@ -13,6 +13,7 @@ import path from "node:path";
 
 //  const MY_PROJECT_ID = "refract-book";
 let testEnv; // <-- CAUTION: I always forget to define it here since it is global var!
+let aliceDb, bruceDb, chaseDb;
 
 beforeAll(async () => {
     // silence expected rules rejections from firestore SDK. 
@@ -27,6 +28,10 @@ beforeAll(async () => {
             rules: readFileSync("firestore.rules","utf8")
         },
     });
+    // set the firestore instances with 3 users (2 auth and 1 not auth):
+    aliceDb = testEnv.authenticatedContext('alice').firestore();
+    bruceDb = testEnv.authenticatedContext('bruce').firestore();
+    chaseDb = testEnv.unauthenticatedContext().firestore();
 });
 
 afterAll(async () => {
@@ -40,21 +45,24 @@ afterAll(async () => {
 beforeEach(async () => {
     // clear firestore
     await testEnv.clearFirestore();
+    
 });
 
 describe("firestore-book rules", () => {
     /* 
         test for all firestore rules related to firestore-book.js
     */
-    test("Unauthorized user must not add doc", async() => {
-        // make unauth context
-        let unauthDb = testEnv.unauthenticatedContext().firestore();
-        await expectFirestorePermissionDenied(addDoc(collection(unauthDb, "books"),{name: "book1"}));
-    });
+    test("Only auth INTENDED OWNER can addDoc", async () => {
+        /* 
+            test that ONLY authenticated intended owner that can add new Doc
+            There will be 3 instances of firestore db:
+            1. aliceDb : the owner of the document and authenticated
+            2. bruceDb : NOT the owner of the document but authenticated
+            3. chaseDb : NOT the owner and NOT authenticated
 
-    test("Auth unintended user cannot addDoc", async() => {
-        let bruceDb = testEnv.authenticatedContext('bruce').firestore();
-        await assertFails(addDoc(collection(bruceDb, "books"),{
+            Assert: ONLY aliceDb that succeeds to addDoc.
+        */
+        const bookData = {
             refs: {
                 user_id: "alice",
             },
@@ -63,61 +71,46 @@ describe("firestore-book rules", () => {
             email: "alice@example.com",
             business_type: "perseroan",
             npwp:""
-        }));
+        };
+
+        // asserts:
+        // aliceDb success to adddoc
+        await assertSucceeds(addDoc(collection(aliceDb, "books"), bookData));
+        // bruceDb failed to addDoc
+        await assertFails(addDoc(collection(bruceDb, "books"), bookData));
+        // chaseDb failed to addDoc
+        await assertFails(addDoc(collection(chaseDb, "books"), bookData));
     });
 
-    test("Auth user can addDoc firestore", async() => {
-        let aliceDb = testEnv.authenticatedContext('alice').firestore();
-        await assertSucceeds(addDoc(collection(aliceDb, "books"),{
-            refs: {
-                user_id: "alice",
-            },
-            name: "Book sample",
-            initial: "BS",
-            email: "alice@example.com",
-            business_type: "perseroan",
-            npwp:""
-        }));
-    });
+    test('only authenticated OWNER can getDoc', async () => {
+        /* 
+            test that only AUTHENTICATED OWNER can access and get doc
+            I will make 3 instances of firestore:
+            - aliceDb authenticated as Alice but Alice is NOT doc owner
+            - bruceDb authenticated as Bruce and the OWNER of the doc
+            - charlieDb unauthenticated user
 
-    test('Auth user cannot get data that not owned', async () => {
-        // looks like this should be get rather than onSnapshot!
+            Assert only bruceDb that succeeds to access the doc using getDoc function.
+        */
         await testEnv.withSecurityRulesDisabled(async (context) => {
-            await setDoc(doc(context.firestore(), 'books/bruce-book'), {
+            await setDoc(doc(context.firestore(), 'books', 'bruce-book'), {
                 refs: {
                     user_id: "bruce",
                 },
-                name: "Book sample",
-                initial: "BS",
-                email: "alice@example.com",
-                business_type: "perseroan",
+                name: "Bruce Sample",
+                initial: "BrS",
+                email: "bruce@example.com",
+                business_type: "komanditer",
                 npwp:""
             });
         });
-        let aliceDb = testEnv.authenticatedContext('alice').firestore();
         
-        const docRef = doc(aliceDb, "books", 'bruce-book');
-        await assertFails(getDoc(docRef));
-    });
-
-    test('Auth user able get data that owned', async () => {
-        // looks like this should be get rather than onSnapshot!
-        await testEnv.withSecurityRulesDisabled(async (context) => {
-            await setDoc(doc(context.firestore(), 'books/bruce-book'), {
-                refs: {
-                    user_id: "bruce",
-                },
-                name: "Book sample",
-                initial: "BS",
-                email: "alice@example.com",
-                business_type: "perseroan",
-                npwp:""
-            });
-        });
-        let bruceDb = testEnv.authenticatedContext('bruce').firestore();
-        
-        const docRef = doc(bruceDb, "books", 'bruce-book');
-        await assertSucceeds(getDoc(docRef));
+        let aliceRef = doc(aliceDb, "books", 'bruce-book');
+        let bruceRef = doc(bruceDb, "books", 'bruce-book');
+        let chaseRef = doc(chaseDb, "books", 'bruce-book');
+        await assertFails(getDoc(aliceRef));
+        await assertSucceeds(getDoc(bruceRef));
+        await assertFails(getDoc(chaseRef))
     });
 });
 
@@ -126,7 +119,7 @@ describe("firestore-book implementations", () => {
         test for firestore-book.js implementations
     */
     test("Unauth user cant addBook", async() => {
-        const unauthDb = testEnv.unauthenticatedContext().firestore();
+        
         const uidTest = "alice";
         const bookData = {
         name: "Book sample",
@@ -138,7 +131,7 @@ describe("firestore-book implementations", () => {
         };
       
         // Pass the same database instance to the addBook() function that you are using in your test
-        await assertFails(addBook(uidTest, bookData, unauthDb));
+        await assertFails(addBook(uidTest, bookData, chaseDb));
     });
 
     test("Auth user addBook", async () => {
@@ -147,12 +140,9 @@ describe("firestore-book implementations", () => {
             NOTE: I can't add image (logo) to this test due to failing path.
             I think it needs NextJS server side render to add the image using path.
         */
-        // add image? still failed since path can't be initiated!
-        // const defaultLogoPath = path.join(".", "/budget.png");
-        // const logoBlob = await fetch(defaultLogoPath).then((res) => res.blob());
-        // const imageFile = new File([logoBlob], "budget.png", { type: "image/png" });
+        
         const uidTest = "alice";
-        const bookData = {
+        let bookData = {
             name: "Book Alice",
             initial: "BA",
             email: "user@example.com",
@@ -162,7 +152,7 @@ describe("firestore-book implementations", () => {
         };
 
         // preps:
-        const aliceDb = testEnv.authenticatedContext(uidTest).firestore();
+        // aliceDb = testEnv.authenticatedContext(uidTest).firestore();
 
         // assert
         await assertSucceeds(addBook(uidTest, bookData, aliceDb));
@@ -215,8 +205,8 @@ describe("firestore-book implementations", () => {
         };
 
         //  call the getAllBooks function 
-        let aliceDb = testEnv.authenticatedContext('alice').firestore();
-        const result = await getAllBooks('alice', setBooks, setIsLoading, aliceDb);
+        // let aliceDb = testEnv.authenticatedContext('alice').firestore();
+        let result = await getAllBooks('alice', setBooks, setIsLoading, aliceDb);
         expect(result).toBeDefined();
     });
 
@@ -263,8 +253,8 @@ describe("firestore-book implementations", () => {
         };
 
         //  call the getAllBooks function 
-        let aliceDb = testEnv.authenticatedContext('alice').firestore();
-        const result = getBook('alice-book1', mockBook, mockIsLoading, aliceDb);
+        // let aliceDb = testEnv.authenticatedContext('alice').firestore();
+        let result = getBook('alice-book1', mockBook, mockIsLoading, aliceDb);
 
         // assert
         expect(result).toBeDefined();
