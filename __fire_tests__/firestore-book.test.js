@@ -86,31 +86,30 @@ describe("firestore-book rules", () => {
         /* 
             test that only AUTHENTICATED OWNER can access and get doc
             I will make 3 instances of firestore:
-            - aliceDb authenticated as Alice but Alice is NOT doc owner
-            - bruceDb authenticated as Bruce and the OWNER of the doc
+            - aliceDb authenticated as Alice and OWNER
+            - bruceDb authenticated as Bruce and NOT OWNER of the doc
             - charlieDb unauthenticated user
 
             Assert only bruceDb that succeeds to access the doc using getDoc function.
         */
-        await testEnv.withSecurityRulesDisabled(async (context) => {
-            await setDoc(doc(context.firestore(), 'books', 'bruce-book'), {
-                refs: {
-                    user_id: "bruce",
-                },
-                name: "Bruce Sample",
-                initial: "BrS",
-                email: "bruce@example.com",
-                business_type: "komanditer",
-                npwp:""
-            });
+
+        await setDoc(doc(aliceDb, 'books', 'bruce-book'), {
+            refs: {
+                user_id: "alice",
+            },
+            name: "Bruce Sample",
+            initial: "BrS",
+            email: "bruce@example.com",
+            business_type: "komanditer",
+            npwp:""
         });
         
         let aliceRef = doc(aliceDb, "books", 'bruce-book');
-        // let bruceRef = doc(bruceDb, "books", 'bruce-book');
+        let bruceRef = doc(bruceDb, "books", 'bruce-book');
         let chaseRef = doc(chaseDb, "books", 'bruce-book');
-        await expectFirestorePermissionDenied(getDoc(aliceRef));
-        // await expectPermissionGetSucceeds(getDoc(bruceRef));
-        await expectFirestorePermissionDenied(getDoc(chaseRef));
+        await assertSucceeds(getDoc(aliceRef));
+        await assertFails(getDoc(bruceRef));
+        await assertFails(getDoc(chaseRef));
     });
 });
 
