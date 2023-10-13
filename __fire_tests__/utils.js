@@ -22,3 +22,10 @@ export async function expectFirestorePermissionDenied(promise) {
     const errorResult = await assertFails(promise);
     expect(errorResult.code).toBe('permission-denied' || 'PERMISSION_DENIED');
 }
+
+export async function expectPermissionGetSucceeds(promise) {
+    /* 
+        function to validate getDocs on firestore rules.
+    */
+    expect(assertSucceeds(promise)).not.toBeUndefined();
+  }

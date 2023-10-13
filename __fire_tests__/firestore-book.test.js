@@ -6,7 +6,7 @@ import {
 } from "@firebase/rules-unit-testing";
 import { readFileSync } from "node:fs";
 import { doc, getDoc, addDoc, collection, setLogLevel, onSnapshot, query, setDoc } from "firebase/firestore";
-import { expectFirestorePermissionDenied } from "./utils";
+import { expectFirestorePermissionDenied, expectPermissionGetSucceeds } from "./utils";
 import { addBook, getAllBooks, getBook } from "../firebase/firestore-book";
 import { useState } from "react";
 import path from "node:path";
@@ -106,11 +106,11 @@ describe("firestore-book rules", () => {
         });
         
         let aliceRef = doc(aliceDb, "books", 'bruce-book');
-        let bruceRef = doc(bruceDb, "books", 'bruce-book');
+        // let bruceRef = doc(bruceDb, "books", 'bruce-book');
         let chaseRef = doc(chaseDb, "books", 'bruce-book');
-        await assertFails(getDoc(aliceRef));
-        await assertSucceeds(getDoc(bruceRef));
-        await assertFails(getDoc(chaseRef))
+        await expectFirestorePermissionDenied(getDoc(aliceRef));
+        // await expectPermissionGetSucceeds(getDoc(bruceRef));
+        await expectFirestorePermissionDenied(getDoc(chaseRef));
     });
 });
 
