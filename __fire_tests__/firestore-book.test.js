@@ -15,6 +15,12 @@ let testEnv1; // <-- CAUTION: I always forget to define it here since it is glob
 let aliceDb, bruceDb, chaseDb;
 
 beforeAll(async() => {
+    /* 
+        test CRUD with 3 types of users
+        1. aliceDb : authenticated user uid= alice
+        2. bruceDb : authenticated user uid= bruce
+        3. chaseDb : non authenticated user
+    */
     // instantiate the test environment for this test
     setLogLevel('error');
     testEnv1 = await initializeTestEnvironment({
@@ -43,16 +49,24 @@ describe("testing firestore rules", () => {
     /* 
         test firestore.rules
     */
-   test("test CRUD in firestore.rules with 3 user types", async () => {
+    test("test CRUD in firestore.rules with 3 user types", async () => {
         /* 
-            test CRUD with 3 types of users
-            1. aliceDb : authenticated user uid= alice
-            2. bruceDb : authenticated user uid= bruce
-            3. chaseDb : non authenticated user
+            test addDoc
         */
-
+        
         let dataBook = {refs: {user_id: "alice"}, name: "Book sample"};
-       
+
+        // test addDoc:
+        // authenticated user and owner of the doc allowed:
+        await assertSucceeds(addDoc(collection(aliceDb, "books"), dataBook));
+        await assertFails(addDoc(collection(bruceDb, "books"), dataBook));
+        await assertFails(addDoc(collection(chaseDb, "books"), dataBook));
+    });
+
+    test("test getDoc scenarios", async () => {
+        /* 
+            test getDoc scenarios
+        */
         await testEnv1.withSecurityRulesDisabled(async (context) => {
             await setDoc(doc(context.firestore(), "books", "alice-book1"), {
                 id: "alice-book1",
@@ -62,18 +76,16 @@ describe("testing firestore rules", () => {
                 name: "Book sample3"
             });
         });
-
-        // test addDoc:
-        // authenticated user and owner of the doc allowed:
-        await assertSucceeds(addDoc(collection(aliceDb, "books"), dataBook));
-        await assertFails(addDoc(collection(bruceDb, "books"), dataBook));
-        await assertFails(addDoc(collection(chaseDb, "books"), dataBook));
-
         // test getDoc:
         await assertSucceeds(getDoc(doc(aliceDb, "books", "alice-book1")));
         await assertFails(getDoc(doc(bruceDb, "books", "alice-book1")));
         await assertFails(getDoc(doc(chaseDb, "books", "alice-book1")));
+    });
 
+    test("test setDoc scenario create new doc", async () => {
+        /* 
+            setDoc scenario for creating new doc
+        */
         // test setDoc create new doc:
         let dataNewSet = {
             refs: {
