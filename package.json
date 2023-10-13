@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "jest --watch",
+    "test": "jest --testPathPattern __tests__/ && jest --testPathPattern __fire_tests__/ --testEnvironment=node",
     "test:ci": "jest --ci"
   },
   "keywords": [],
@@ -30,6 +30,7 @@
     "react-firebaseui": "^6.0.0"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^3.0.1",
     "@testing-library/jest-dom": "5.16.4",
     "@testing-library/react": "13.2.0",
     "@testing-library/user-event": "14.2.0",
