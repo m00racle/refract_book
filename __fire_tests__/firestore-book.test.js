@@ -14,6 +14,31 @@ import path from "node:path";
 let testEnv1; // <-- CAUTION: I always forget to define it here since it is global var!
 let aliceDb, bruceDb, chaseDb;
 
+beforeAll(async() => {
+    // instantiate the test environment for this test
+    setLogLevel('error');
+    testEnv1 = await initializeTestEnvironment({
+        projectId: "firestore-rules-book",
+        firestore: {
+            host: "127.0.0.1",
+            port: 8080,
+            rules: readFileSync("firestore.rules", "utf8")
+        },
+    });
+    // clear the firestore first:
+    await testEnv1.clearFirestore();
+
+    aliceDb = testEnv1.authenticatedContext('alice').firestore();
+    bruceDb = testEnv1.authenticatedContext('bruce').firestore();
+    chaseDb = testEnv1.unauthenticatedContext().firestore();
+});
+
+afterAll(async () => {
+    // closing :
+    await testEnv1.clearFirestore();
+    await testEnv1.cleanup();
+});
+
 describe("testing firestore rules", () => {
     /* 
         test firestore.rules
@@ -25,22 +50,6 @@ describe("testing firestore rules", () => {
             2. bruceDb : authenticated user uid= bruce
             3. chaseDb : non authenticated user
         */
-        // instantiate the test environment for this test
-        setLogLevel('error');
-        testEnv1 = await initializeTestEnvironment({
-            projectId: "firestore-rules-book",
-            firestore: {
-                host: "127.0.0.1",
-                port: 8080,
-                rules: readFileSync("firestore.rules", "utf8")
-            },
-        });
-        // clear the firestore first:
-        await testEnv1.clearFirestore();
-
-        aliceDb = testEnv1.authenticatedContext('alice').firestore();
-        bruceDb = testEnv1.authenticatedContext('bruce').firestore();
-        chaseDb = testEnv1.unauthenticatedContext().firestore();
 
         let dataBook = {refs: {user_id: "alice"}, name: "Book sample"};
        
@@ -76,9 +85,5 @@ describe("testing firestore rules", () => {
         await assertFails(setDoc(doc(aliceDb, "books", "book-new-set"), dataNewSet));
         await assertSucceeds(setDoc(doc(bruceDb, "books", "book-new-set"), dataNewSet));
         await assertFails(setDoc(doc(chaseDb, "books", "book-new-set"), dataNewSet));
-
-        // closing :
-        await testEnv1.clearFirestore();
-        await testEnv1.cleanup();
     });
 });
