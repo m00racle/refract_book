@@ -5,10 +5,7 @@ import {
 } from "@firebase/rules-unit-testing";
 import { readFileSync } from "node:fs";
 import { doc, getDoc, addDoc, collection, setLogLevel, onSnapshot, query, setDoc } from "firebase/firestore";
-import { expectFirestorePermissionDenied, expectPermissionGetSucceeds } from "./utils";
 import { addBook, getAllBooks, getBook } from "../firebase/firestore-book";
-import { useState } from "react";
-import path from "node:path";
 
 //  const MY_PROJECT_ID = "refract-book";
 let testEnv1; // <-- CAUTION: I always forget to define it here since it is global var!
@@ -47,11 +44,16 @@ afterAll(async () => {
 
 describe("testing firestore rules", () => {
     /* 
-        test firestore.rules
+        test firestore.rules for collection "books"
     */
     test("test CRUD in firestore.rules with 3 user types", async () => {
         /* 
             test addDoc
+            Scenario: addDoc for alice to aliceDb
+            Assert:
+            1. addDoc to aliceDb must succeed
+            2. addDoc to bruceDb must fails
+            3. addDoc to chaseDb must fails
         */
         
         let dataBook = {refs: {user_id: "alice"}, name: "Book sample"};
@@ -65,7 +67,14 @@ describe("testing firestore rules", () => {
 
     test("test getDoc scenarios", async () => {
         /* 
-            test getDoc scenarios
+            test getDoc:
+            Scenario: getDoc for alice from aliceDb
+            We setDoc to add one more Doc with id alice-book1
+
+            Assert:
+            1. getDoc to aliceDb must succeed
+            2. getDoc to bruceDb must fails
+            3. getDoc to chaseDb must fails
         */
         await testEnv1.withSecurityRulesDisabled(async (context) => {
             await setDoc(doc(context.firestore(), "books", "alice-book1"), {
@@ -84,7 +93,12 @@ describe("testing firestore rules", () => {
 
     test("test setDoc scenario create new doc", async () => {
         /* 
-            setDoc scenario for creating new doc
+            setDoc for creating new doc
+            SCENARIO: setDoc to create new doc for bruce
+            Assert:
+            1. setDoc to aliceDb must fails
+            2. setDoc to bruceDb must succeeds
+            3. setDoc to chaseDb must fails
         */
         // test setDoc create new doc:
         let dataNewSet = {

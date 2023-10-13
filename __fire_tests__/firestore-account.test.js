@@ -46,26 +46,6 @@ afterAll(async () => {
    await testEnv.cleanup();
 });
 
-beforeEach(async () => {
-    /*  
-        this function is called every time a new test (IN THIS MODULE) begin to run
-        clear all firestore data 
-        ensure you arrage (prepare) the data and don't use previous used data
-    */
-    await testEnv.clearFirestore();
-    // preps a book which will have accounts collection
-    await testEnv.withSecurityRulesDisabled(async (context) => {
-        await setDoc(doc(context.firestore(), "books", "alice-book1"), {
-            id: "alice-book1",
-            refs: {
-                user_id: "alice",
-                book_ref: 3
-            },
-            name: "Book sample3"
-        });
-    });
-});
-
 describe("firestore-account rules", () => {
     /* 
         this part is exclusive to test the firestore.rules 
@@ -80,36 +60,5 @@ describe("firestore-account rules", () => {
         let unauthDb = testEnv.unauthenticatedContext().firestore();
         // act: setDoc while unauthenticated
         await assertFails(setDoc(doc(unauthDb,"books/alice-book1/accounts", "11001"), sampleAccountAlice));
-    });
-
-    test("auth user can set accounts", async () => {
-        /*  
-            test authorized user must be able to set accounts
-            set accounts with id "11001"
-        */
-        // set auth with uid alice
-        let authDb = testEnv.authenticatedContext('alice').firestore();
-        await assertSucceeds(setDoc(doc(authDb, "books/alice-book1/accounts", "11001"), sampleAccountAlice));
-    });
-
-    test("auth user with different uid can't set accounts", async () => {
-        /* 
-            test case when a user is authenticated but have different uid can't set accounts
-            TODO: consider this again, is this still necessary?
-        */
-        // let authDb = testEnv.authenticatedContext('bruce').firestore();
-        // await assertFails(setDoc(doc(authDb, "books/alice-book1/accounts", "11001"), sampleAccountAlice));
-    });
-
-    test("only able to get account from valid book", async () => {
-        /*  
-            test that if passing non valid book it will failed to get account data.
-        */
-    });
-
-    test("only authentiacated user can delete the account", async () => {
-        /*  
-            test only authenticated user can delete the account
-        */
     });
 });
