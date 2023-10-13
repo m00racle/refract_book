@@ -21,8 +21,8 @@ describe("testing firestore rules", () => {
    test("test CRUD in firestore.rules with 3 user types", async () => {
         /* 
             test CRUD with 3 types of users
-            1. aliceDb : authenticated user and OWNER of the document
-            2. bruceDb : authenticated user but NOT OWNER of the document
+            1. aliceDb : authenticated user uid= alice
+            2. bruceDb : authenticated user uid= bruce
             3. chaseDb : non authenticated user
         */
         // instantiate the test environment for this test
@@ -65,8 +65,20 @@ describe("testing firestore rules", () => {
         await assertFails(getDoc(doc(bruceDb, "books", "alice-book1")));
         await assertFails(getDoc(doc(chaseDb, "books", "alice-book1")));
 
+        // test setDoc create new doc:
+        let dataNewSet = {
+            refs: {
+                user_id: "bruce"
+            },
+            name: "Book New Set",
+            initial: "BNS"
+        };
+        await assertFails(setDoc(doc(aliceDb, "books", "book-new-set"), dataNewSet));
+        await assertSucceeds(setDoc(doc(bruceDb, "books", "book-new-set"), dataNewSet));
+        await assertFails(setDoc(doc(chaseDb, "books", "book-new-set"), dataNewSet));
+
         // closing :
         await testEnv1.clearFirestore();
         await testEnv1.cleanup();
-   });
+    });
 });
