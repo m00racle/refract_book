@@ -10,6 +10,7 @@ import { addBook, getAllBooks, getBook } from "../firebase/firestore-book";
 //  const MY_PROJECT_ID = "refract-book";
 let testEnv1; // <-- CAUTION: I always forget to define it here since it is global var!
 let aliceDb, bruceDb, chaseDb;
+let succeedRef
 
 beforeAll(async() => {
     /* 
@@ -60,7 +61,9 @@ describe("testing firestore rules", () => {
 
         // test addDoc:
         // authenticated user and owner of the doc allowed:
-        await assertSucceeds(addDoc(collection(aliceDb, "books"), dataBook));
+        succeedRef = await addDoc(collection(aliceDb, "books"), dataBook)
+        // console.log('succeedResult = ', succeedRef.id); // <- DEBUG: see the promise
+        assertSucceeds(succeedRef);
         await assertFails(addDoc(collection(bruceDb, "books"), dataBook));
         await assertFails(addDoc(collection(chaseDb, "books"), dataBook));
     });
@@ -69,26 +72,18 @@ describe("testing firestore rules", () => {
         /* 
             test getDoc:
             Scenario: getDoc for alice from aliceDb
-            We setDoc to add one more Doc with id alice-book1
+            We will use the PROMISE result from previous test that alter the suceedRef
 
             Assert:
             1. getDoc to aliceDb must succeed
             2. getDoc to bruceDb must fails
             3. getDoc to chaseDb must fails
         */
-        await testEnv1.withSecurityRulesDisabled(async (context) => {
-            await setDoc(doc(context.firestore(), "books", "alice-book1"), {
-                id: "alice-book1",
-                refs: {
-                    user_id: "alice",
-                },
-                name: "Book sample3"
-            });
-        });
-        // test getDoc:
-        await assertSucceeds(getDoc(doc(aliceDb, "books", "alice-book1")));
-        await assertFails(getDoc(doc(bruceDb, "books", "alice-book1")));
-        await assertFails(getDoc(doc(chaseDb, "books", "alice-book1")));
+        // fetch the doc id from previous addDoc test:
+        const refId = succeedRef.id;
+        await assertSucceeds(getDoc(doc(aliceDb, "books", refId)));
+        await assertFails(getDoc(doc(bruceDb, "books", refId)));
+        await assertFails(getDoc(doc(chaseDb, "books", refId)));
     });
 
     test("test setDoc scenario create new doc", async () => {
