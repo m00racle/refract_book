@@ -4,7 +4,7 @@ import {
     initializeTestEnvironment
 } from "@firebase/rules-unit-testing";
 import { readFileSync } from "node:fs";
-import { doc, getDoc, addDoc, collection, setLogLevel, onSnapshot, query, setDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, addDoc, collection, setLogLevel, setDoc, updateDoc, deleteField, deleteDoc } from "firebase/firestore";
 import { addBook, getAllBooks, getBook } from "../firebase/firestore-book";
 
 //  const MY_PROJECT_ID = "refract-book";
@@ -163,5 +163,45 @@ describe("testing firestore rules", () => {
         await assertSucceeds(updateDoc(doc(aliceDb, "books", updateRef), updateData));
         await assertFails(updateDoc(doc(bruceDb, "books", updateRef), updateData));
         await assertFails(updateDoc(doc(chaseDb, "books", updateRef), updateData));
+    });
+
+    test("delete fields from existing doc", async () => {
+        /* 
+            delete fields from existind doc
+            SCENARIO: using the aliceDb doc from the addDoc test
+            delete the field (nested) refs.test
+
+            NOTE: this is still part of updateDoc since we want to update by deleting
+
+            assert:
+            1. deleteFields to aliceDb must succeeds
+            2. deleteFields to bruceDb must fails
+            3. deleteFields to chaseDb must fails
+        */
+        const fieldRef = succeedRef.id;
+        // assert:
+        await assertSucceeds(updateDoc(doc(aliceDb, "books", fieldRef), {"refs.test": deleteField()}));
+        await assertFails(updateDoc(doc(bruceDb, "books", fieldRef), {"refs.test": deleteField()}));
+        await assertFails(updateDoc(doc(chaseDb, "books", fieldRef), {"refs.test": deleteField()}));
+    });
+
+    test("delete the whole doc", async () => {
+        /* 
+            delete the whole doc
+            SCENARIO: using the aliceDb doc from addDoc test
+            delete the whole field
+
+            assert:
+            1. deleteDoc to aliceDb must succeeds
+            2. deleteDoc to bruceDb must fails
+            3. deleteDoc to chaseDb must fails
+        */
+        const deleteRef = succeedRef.id;
+        // assert: 
+        // TODO: these asserts are still false
+        
+        await assertFails(deleteDoc(doc(bruceDb, "books", deleteRef)));
+        await assertFails(deleteDoc(doc(chaseDb, "books", deleteRef)));
+        await assertSucceeds(deleteDoc(doc(aliceDb, "books", deleteRef)));
     });
 });
