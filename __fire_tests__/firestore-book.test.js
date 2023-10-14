@@ -4,7 +4,7 @@ import {
     initializeTestEnvironment
 } from "@firebase/rules-unit-testing";
 import { readFileSync } from "node:fs";
-import { doc, getDoc, addDoc, collection, setLogLevel, onSnapshot, query, setDoc } from "firebase/firestore";
+import { doc, getDoc, addDoc, collection, setLogLevel, onSnapshot, query, setDoc, updateDoc } from "firebase/firestore";
 import { addBook, getAllBooks, getBook } from "../firebase/firestore-book";
 
 //  const MY_PROJECT_ID = "refract-book";
@@ -106,5 +106,62 @@ describe("testing firestore rules", () => {
         await assertFails(setDoc(doc(aliceDb, "books", "book-new-set"), dataNewSet));
         await assertSucceeds(setDoc(doc(bruceDb, "books", "book-new-set"), dataNewSet));
         await assertFails(setDoc(doc(chaseDb, "books", "book-new-set"), dataNewSet));
+    });
+
+    test("update doc using setDoc (rewrite)", async () => {
+        /* 
+            setDoc but to re-write (update) existing doc
+            SCENARIO: using the previously created doc with id: book-new-set
+            and then setDoc to change the name and initial
+            Assert:
+            Assert:
+            1. setDoc to aliceDb must fails
+            2. setDoc to bruceDb must succeeds
+            3. setDoc to chaseDb must fails
+        */
+        // arrange: prepare the updated data
+        let updateSet = {
+            refs: {
+                user_id: "bruce"
+            },
+            name: "Bruce's Book1",
+            initial: "BB",
+            id: "book-new-set"
+        };
+
+        // ASSERT:
+        await assertFails(setDoc(doc(aliceDb, "books", "book-new-set"), updateSet));
+        await assertSucceeds(setDoc(doc(bruceDb, "books", "book-new-set"), updateSet));
+        await assertFails(setDoc(doc(chaseDb, "books", "book-new-set"), updateSet));
+    });
+
+    test("update doc using updateDoc", async () => {
+        /* 
+            updateDoc to update the existing doc
+            SCENARIO: using the doc created by the addDoc to aliceDb
+            referred using the succeedRef.id 
+            test the utilization of updateDoc to this doc
+
+            NOTE: to update nested object data you need to use "" since 
+            object does not allow the use of . (dot) notation
+
+            Assert:
+            1. updateDoc to aliceDb must succeeds
+            2. updateDoc to bruceDb must fails
+            3. updateDoc to chaseDb must fails
+        */
+        // arrange:
+        const updateRef = succeedRef.id;
+        const updateData = {
+            id: updateRef, // add new field id
+            name: "Alice's Book1", // change the name
+            initial: "AB", //add new field initial
+            "refs.test": true //add new (nested) field test
+        };
+
+        // assert:
+        await assertSucceeds(updateDoc(doc(aliceDb, "books", updateRef), updateData));
+        await assertFails(updateDoc(doc(bruceDb, "books", updateRef), updateData));
+        await assertFails(updateDoc(doc(chaseDb, "books", updateRef), updateData));
     });
 });
