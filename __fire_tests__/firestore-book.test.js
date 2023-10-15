@@ -198,7 +198,8 @@ describe("testing firestore rules", () => {
         */
         const deleteRef = succeedRef.id;
         // assert: 
-        // TODO: these asserts are still false
+        // NOTE: the assertion sequence is reversed to ensure the firestore database
+        // consistencies and stability
         
         await assertFails(deleteDoc(doc(bruceDb, "books", deleteRef)));
         await assertFails(deleteDoc(doc(chaseDb, "books", deleteRef)));
