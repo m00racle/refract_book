@@ -206,3 +206,46 @@ describe("testing firestore rules", () => {
         await assertSucceeds(deleteDoc(doc(aliceDb, "books", deleteRef)));
     });
 });
+
+describe("testing firestore-book implementation", () => {
+    /* 
+        testing the implementations of the funcion on firestore-book.js
+    */
+    test("addBook implementation only for intended auth user", async () => {
+        /* 
+            testing addBook
+            SCENARIO: addBook for bruceDb (aliceDb will be reserved for later)
+            set the uid = bruce and this is constant since WE WANT TO TEST THE DATABASE
+            thus the variable should be: aliceDb, bruceDb, and chaseDb
+            aliceDb simulate authenticated user but NOT the owner
+            bruceDb simulate atuhenticated user and the owner
+            chaseDb simulate NON authenticated user
+
+            Assert:
+            1. addBook for aliceDb must fails
+            2. addBook for bruceDb must succeeds
+            3. addBook for chaseDb must fails
+        */
+        // arrange
+        const addedData = {
+            refs: {
+                user_id: "bruce"
+            },
+            name: "Bruce added Book",
+            initial: "BAB",
+            email: "bruce@example.com",
+            selectedCompanyType: "firma",
+            npwp: "",
+            logoFile: "testing/budget.png" //shouldn't be processed
+        };
+
+        // preps the uid is bruce -> we want to test only intended user which has the uid 
+        // thus when usince aliceDb it should be declined because in aliceDb bruce is NOT the owner 
+        const testUid = "bruce";
+
+        // assert:
+        await assertFails(addBook(testUid, addedData, aliceDb));
+        await assertSucceeds(addBook(testUid, addedData, bruceDb));
+        await assertFails(addBook(testUid, addedData, chaseDb));
+    });
+});
