@@ -19,12 +19,15 @@ export async function addBook(uid, bookData, dBase=db) {
         dBase: firestore = used database (default db from ./firestore)
     */
     let fileType, storagePath, downloadUrl;
-    // addDoc with refs to get the docId:
+
+    // addDoc with refs to get the docId: (this is just to assign doc id to be used later)
     const docRef = await addDoc(collection(dBase, BOOK_COLLECTION),{
         refs:{user_id: uid}
     }).catch((e) => {
+        // console.log("addDoc error: ", e); //<- for DEBUG only!
         throw e;
     });
+
     // upload the logo image to the storage first
     const imageFile = bookData.logoFile;
     if (imageFile instanceof Blob) {
@@ -36,8 +39,7 @@ export async function addBook(uid, bookData, dBase=db) {
         downloadUrl = "";
     }
     
-
-    // prepare the book doc daa
+    // prepare the book doc and include the id = docRef.id into the data
     const bookDocData = {
         refs: {
             user_id: uid,
@@ -51,8 +53,9 @@ export async function addBook(uid, bookData, dBase=db) {
         logoUrl: downloadUrl
     };
 
+    // we update the data using setDoc to be able to include doc id into the doc data:
     await setDoc(doc(dBase, BOOK_COLLECTION, docRef.id), bookDocData).catch((err) => {
-        // console.error("Error adding book: ", err);
+        // console.error("Error adding book: ", err); //<- for DEBUG only!
         throw err;
     });
 }
