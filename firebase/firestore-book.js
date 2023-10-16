@@ -83,13 +83,15 @@ export async function getAllBooks (uid,  setBooks, setIsLoading, dBase=db) {
 
 export async function getBook (bookId, setBook, setIsLoadingBooks, dBase=db) {
     // show specific book
+    setIsLoadingBooks(true);
     const docRef = doc(dBase, BOOK_COLLECTION, bookId);
     const docSnap = await getDoc(docRef).catch((err) => {
         // console.error("Error get a book: ", err);
+        setIsLoadingBooks(false);
         throw err;
     });
     // pass the result to setBooks
-    setIsLoadingBooks(false);
+    
     if (docSnap.exists) {
         const bookData = docSnap.data();
         setBook({ ...bookData });
@@ -101,12 +103,15 @@ export async function getBook (bookId, setBook, setIsLoadingBooks, dBase=db) {
             } else {
                 // show no books
                 setBook(undefined);
+                setIsLoadingBooks(false);
                 return undefined;
             }
         })
+        setIsLoadingBooks(false);
         return unsubscribe;
     } else {
         // handle book does not exist under specific uid
+        setIsLoadingBooks(false);
         setBook(undefined);
         return undefined;
     }
