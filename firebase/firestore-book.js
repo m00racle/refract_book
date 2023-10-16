@@ -72,6 +72,8 @@ export async function getAllBooks (uid,  setBooks, setIsLoading, dBase=db) {
             const book = documentSnapshot.data();
             allBooks.push({ ...book });
         }
+        // console.log('allBooks: ', allBooks); //<- for DEBUG purposees
+        setIsLoading(true);
         setBooks(allBooks);
         setIsLoading(false);
     });
