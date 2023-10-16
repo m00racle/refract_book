@@ -271,7 +271,7 @@ describe("testing firestore-book implementation", () => {
             ---- ONLY 3 out of 4 books with user_id = alice to be called
             5. the isLoading in the end = false
         */
-    //    initial states:
+        //    initial states:
         let mockLoadingState = false;
         let mockBooks = [];
 
@@ -348,8 +348,7 @@ describe("testing firestore-book implementation", () => {
         // assert after unsubscription (stop the onSnapshot listeners and async processes)
         // console.log('how many setBooks calls: ', mockSetBooks.mock.calls.length); //<- for DEBUG purposes
         // console.log('how many setLoading calls: ', mockSetLoading.mock.calls.length); //<- for DEBUG purposes
-        // expect(mockSetBooks.mock.calls).toHaveLength(4);
-        // expect(mockSetLoading.mock.calls).toHaveLength(9);
+        
         expect(mockLoadingState).toBe(false);
         expect(mockBooks).toHaveLength(3);
         expect(mockBooks).toStrictEqual([
@@ -375,5 +374,57 @@ describe("testing firestore-book implementation", () => {
                 }
             },
         ]);
+    });
+
+    test("getBook allowed implementation", async () => {
+        /* 
+            testing getBook implementation
+            SCENARIO: 
+            getBook with id= "alice-book-3"
+            I already put the alice-book-3 using the context of withSecurityRules disabled
+
+            Assert:
+            1. unsubscribe is defined
+            2. the mockBook is correct
+            3. the mockLoadingState is false
+        */
+        // arrange:
+        let mockBook;
+        let mockLoading;
+        const mockSetBook = jest.fn((x) => {mockBook = x;});
+        const mockSetLoading = jest.fn((y) => {mockLoading = y;});
+
+        // action
+        const unsubs = await getBook("alice-book-3", mockSetBook, mockSetLoading, aliceDb);
+
+        // assert:
+        expect(unsubs).toBeDefined();
+        expect(mockLoading).toBe(false);
+
+        // fini:
+        unsubs();
+        
+        // make sure no other auth user can get to the alice data
+        await assertFails(getBook("alice-book-1", mockSetBook, mockSetLoading, bruceDb));
+        // but test the whole process is finished:
+        expect(mockLoading).toBe(false);
+
+        // make sure no auth user can get to the data although owned:
+        await assertFails(getBook("chase-book-2", mockSetBook, mockSetLoading, chaseDb));
+
+        // but the whole process is finished:
+        expect(mockLoading).toBe(false);
+
+        // console.log("mockBook: ", mockBook); //<- for DEBUG purposes
+        // console.log("mockLoading: ", mockLoading); //<- for DEBUG purposes
+        // console.log("mockSetBook calls: ", mockSetBook.mock.calls.length); //<- for DEBUG purposes
+        expect(mockBook).toStrictEqual({
+            id: "alice-book-3",
+            name: "Sample Alice 3",
+            refs: {
+                user_id: "alice"
+            }
+        });
+        
     });
 });
