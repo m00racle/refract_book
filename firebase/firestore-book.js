@@ -78,6 +78,7 @@ export async function getAllBooks (uid,  setBooks, setIsLoading, dBase=db) {
         setIsLoading(false);
     });
     // stop listening to database
+    setIsLoading(false);
     return unsubscribe;
 }
 
