@@ -255,15 +255,36 @@ describe("testing firestore-book implementation", () => {
             SCENARIO: getAllBooks from aliceDb 
             in the beginning the state of isLoading is true and preps the books state to be []
             then uid will be set to be alice
-            but prior to that we need to setDoc 
+            but prior to that we need to setDoc with security rules disabled.
+            However, before we do this we need to call the getAllBooks function first THEN we addDocs
+            This is because getAllBooks basically setting the listening onSnapshot function
+            This should listen 4 calls since we will add three docs with user_id alice before add 1 doc
+            using user_id chase. 
+            Even as after that we add another doc with user_id alice it would not work
+
+            Assert:
+            1. unsubscribe returne from the call of getAllBooks is DEFINED  
+            2. there will be 4 calls to the setBooks function
+            3. there will be changes in the setIsloading function as much as 9 times
+            ( I put each allBooks are loaded to the setBooks to have the isLoading = true )
+            4. the books sequence are correct 
+            ---- ONLY 3 out of 4 books with user_id = alice to be called
+            5. the isLoading in the end = false
         */
+    //    initial states:
         let mockLoadingState = false;
         let mockBooks = [];
-        // mock functions:
-        const mockSetLoading = function (x) { mockLoadingState = x; }
-        const mockSetBooks = function (y) { mockBooks = y; }
+
+        // mock functions: basically this simulate the useState hook 
+        // which setter is just passing the value to the states above (repectively)
+        const mockSetLoading = jest.fn((x) => { mockLoadingState = x;});
+        const mockSetBooks = jest.fn((y) => {mockBooks = y; });
+
+        // simulate the beginning of the run state when getAllBooks is called the isLoading = true
         mockSetLoading(true);
+
         const getBooksUid = 'alice';
+
         // preps testDocs:
         const testDocs = [
             {
@@ -280,14 +301,33 @@ describe("testing firestore-book implementation", () => {
                     user_id: "alice"
                 }
             },
-            {
+            { // this will still be called
                 id: "chase-book-1",
                 name: "Chase Sample Fail",
                 refs: {
+                    user_id: "alice"
+                }
+            },
+            { // this will break the sequence to the onSnapshot!
+                id: "chase-book-2",
+                name: "Chase Sample second",
+                refs: {
                     user_id: "chase"
+                }
+            },
+            { // this part should not be called on snapshot! 
+                id: "alice-book-3",
+                name: "Sample Alice 3",
+                refs: {
+                    user_id: "alice"
                 }
             }
         ];
+
+        // action: call the getAllBooks function
+        // NOTE: getAllBooks starts a listener so the input into database using withSecurity Disabled
+        // must be set after this unsub: (after we set the listener for database changes!)
+        const unsub = await getAllBooks(getBooksUid, mockSetBooks, mockSetLoading, aliceDb);
 
         // input to the database e with Security Rules Disabled:
         await testEnv1.withSecurityRulesDisabled(async (context) => {
@@ -297,17 +337,43 @@ describe("testing firestore-book implementation", () => {
             }
         });
 
-        // action: call the getAllBooks function
-        const unsub = await getAllBooks(getBooksUid, mockSetBooks, mockSetLoading, aliceDb);
-        
-        // TODO: this still unable to mock the state variables and setters
-        console.log('mocked is loading state = ', mockLoadingState); //<- for DEBUG purpose
-        console.log('mockBooks = ', unsub.toString()); //<- for DEBUG purpose
+        // console.log('mocked is loading state = ', mockLoadingState); //<- for DEBUG purpose
+        // console.log('mockBooks = ', mockBooks); //<- for DEBUG purpose
 
         // assert
         expect(unsub).toBeDefined();
-        // TODO: both tests below fails!
-        // await assertFails(getAllBooks(getBooksUid, mockSetBooks, mockSetLoading, bruceDb));
-        // await assertFails(getAllBooks(getBooksUid, mockSetBooks, mockSetLoading, chaseDb));
+
+        unsub();
+
+        // assert after unsubscription (stop the onSnapshot listeners and async processes)
+        // console.log('how many setBooks calls: ', mockSetBooks.mock.calls.length); //<- for DEBUG purposes
+        // console.log('how many setLoading calls: ', mockSetLoading.mock.calls.length); //<- for DEBUG purposes
+        expect(mockSetBooks.mock.calls).toHaveLength(4);
+        expect(mockSetLoading.mock.calls).toHaveLength(9);
+        expect(mockLoadingState).toBe(false);
+        expect(mockBooks).toHaveLength(3);
+        expect(mockBooks).toStrictEqual([
+            { // this will still be called
+                id: "chase-book-1",
+                name: "Chase Sample Fail",
+                refs: {
+                    user_id: "alice"
+                }
+            },
+            {
+                id: "alice-book-2",
+                name: "Sample Alice 2",
+                refs: {
+                    user_id: "alice"
+                }
+            },
+            {
+                id: "alice-book-1",
+                name: "Sample Alice 1",
+                refs: {
+                    user_id: "alice"
+                }
+            },
+        ]);
     });
 });
