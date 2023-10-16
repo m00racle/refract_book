@@ -5,7 +5,7 @@ import {
 } from "@firebase/rules-unit-testing";
 import { readFileSync } from "node:fs";
 import { doc, getDoc, addDoc, collection, setLogLevel, setDoc, updateDoc, deleteField, deleteDoc } from "firebase/firestore";
-import { addBook, getAllBooks, getBook } from "../firebase/firestore-book";
+import { addBook, deleteBook, getAllBooks, getBook } from "../firebase/firestore-book";
 
 //  const MY_PROJECT_ID = "refract-book";
 let testEnv1; // <-- CAUTION: I always forget to define it here since it is global var!
@@ -403,7 +403,7 @@ describe("testing firestore-book implementation", () => {
 
         // fini:
         unsubs();
-        
+
         // make sure no other auth user can get to the alice data
         await assertFails(getBook("alice-book-1", mockSetBook, mockSetLoading, bruceDb));
         // but test the whole process is finished:
@@ -426,5 +426,20 @@ describe("testing firestore-book implementation", () => {
             }
         });
         
+    });
+
+    test("deleteBook implementations", async () => {
+        /* 
+            test deleteBook 
+            SCENARIO: delete into 3 scenarios
+            note that in this part there are no state changes
+            The scenario is straight forward
+            1. assert fails to authenticated database BUT try to delete doc that NOT OWNED
+            2. assert fails to doc OWNED but NOT auth
+            3. assert succeeds to delete doc that auth and owned
+        */
+        await assertFails(deleteBook("alice-book-3", "bruce", bruceDb));
+        await assertFails(deleteBook("alice-book-3", "alice", chaseDb));
+        await assertSucceeds(deleteBook("alice-book-3", "alice", aliceDb));
     });
 });
