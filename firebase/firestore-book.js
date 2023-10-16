@@ -19,12 +19,15 @@ export async function addBook(uid, bookData, dBase=db) {
         dBase: firestore = used database (default db from ./firestore)
     */
     let fileType, storagePath, downloadUrl;
-    // addDoc with refs to get the docId:
+
+    // addDoc with refs to get the docId: (this is just to assign doc id to be used later)
     const docRef = await addDoc(collection(dBase, BOOK_COLLECTION),{
         refs:{user_id: uid}
     }).catch((e) => {
+        // console.log("addDoc error: ", e); //<- for DEBUG only!
         throw e;
     });
+
     // upload the logo image to the storage first
     const imageFile = bookData.logoFile;
     if (imageFile instanceof Blob) {
@@ -36,8 +39,7 @@ export async function addBook(uid, bookData, dBase=db) {
         downloadUrl = "";
     }
     
-
-    // prepare the book doc daa
+    // prepare the book doc and include the id = docRef.id into the data
     const bookDocData = {
         refs: {
             user_id: uid,
@@ -51,8 +53,9 @@ export async function addBook(uid, bookData, dBase=db) {
         logoUrl: downloadUrl
     };
 
+    // we update the data using setDoc to be able to include doc id into the doc data:
     await setDoc(doc(dBase, BOOK_COLLECTION, docRef.id), bookDocData).catch((err) => {
-        // console.error("Error adding book: ", err);
+        // console.error("Error adding book: ", err); //<- for DEBUG only!
         throw err;
     });
 }
@@ -69,22 +72,27 @@ export async function getAllBooks (uid,  setBooks, setIsLoading, dBase=db) {
             const book = documentSnapshot.data();
             allBooks.push({ ...book });
         }
+        // console.log('allBooks: ', allBooks); //<- for DEBUG purposees
+        setIsLoading(true);
         setBooks(allBooks);
         setIsLoading(false);
     });
     // stop listening to database
+    setIsLoading(false);
     return unsubscribe;
 }
 
 export async function getBook (bookId, setBook, setIsLoadingBooks, dBase=db) {
     // show specific book
+    setIsLoadingBooks(true);
     const docRef = doc(dBase, BOOK_COLLECTION, bookId);
     const docSnap = await getDoc(docRef).catch((err) => {
         // console.error("Error get a book: ", err);
+        setIsLoadingBooks(false);
         throw err;
     });
     // pass the result to setBooks
-    setIsLoadingBooks(false);
+    
     if (docSnap.exists) {
         const bookData = docSnap.data();
         setBook({ ...bookData });
@@ -96,12 +104,15 @@ export async function getBook (bookId, setBook, setIsLoadingBooks, dBase=db) {
             } else {
                 // show no books
                 setBook(undefined);
+                setIsLoadingBooks(false);
                 return undefined;
             }
         })
+        setIsLoadingBooks(false);
         return unsubscribe;
     } else {
         // handle book does not exist under specific uid
+        setIsLoadingBooks(false);
         setBook(undefined);
         return undefined;
     }
