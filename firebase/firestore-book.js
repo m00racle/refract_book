@@ -93,7 +93,7 @@ export async function getBook (bookId, setBook, setIsLoadingBooks, dBase=db) {
     });
     // pass the result to setBooks
     
-    if (docSnap.exists) {
+    if (docSnap.exists()) {
         const bookData = docSnap.data();
         setBook({ ...bookData });
         // listen to the real time changes
