@@ -1,64 +1,175 @@
-/*  
-    Module: test for firebase-account.js module
-    Included test for the firestore.rules related to firebase-account
-
+/* 
+    Temporary I want to use this to test the firestore-book 
 */
 
-import { initializeTestEnvironment, assertFails, assertSucceeds } from "@firebase/rules-unit-testing";
-import { addDoc, collection, doc, setDoc, setLogLevel } from "firebase/firestore";
 import { readFileSync } from "node:fs";
+import {
+    assertFails,
+    assertSucceeds,
+    initializeTestEnvironment
+} from "@firebase/rules-unit-testing";
+import {doc, 
+    setDoc, 
+    collection, 
+    addDoc, setLogLevel
+} from 'firebase/firestore';
 
-let testEnv;
-const sampleAccountAlice = {
-    id: "11001",
-    refs: {
-        book_ref: "alice-book1"
-    },
-    account_name: "cash",
-};
+import { getAllBooks } from "../firebase/firestore-book";
 
-beforeAll(async() => {
-    /*  
-        This code will be run ONCE in earliest of whole tests run in THIS MODULE
-        Basically instantiate... (well that is not quite correct) but you know what I meant
-        the test environment.
-        To do this we must pass the credential such as ProjectID and also firestore (emulated) 
-        setups.
-    */
-   setLogLevel('error');
-   testEnv = await initializeTestEnvironment({
-        projectId: "refract-book",
+let testEnv2;
+let aliceDb, bruceDb, chaseDb;
+let initDocs;
+
+beforeAll(async () => {
+    setLogLevel('error');
+    testEnv2 = await initializeTestEnvironment({
+        projectId: "firestore-implementation-book",
         firestore: {
             host: "127.0.0.1",
             port: 8080,
             rules: readFileSync("firestore.rules", "utf8")
         },
-   });
+    });
+
+    aliceDb = testEnv2.authenticatedContext('alice').firestore();
+    bruceDb = testEnv2.authenticatedContext('bruce').firestore();
+    chaseDb = testEnv2.unauthenticatedContext().firestore();
+    // prep initial mock data:
+    initDocs = [
+        {
+            refs: {
+                user_id: 'alice'
+            },
+            id: "alice-book-1",
+            name: "sample book alice 1",
+            initial: "SBA1",
+            email: "alice@example.com",
+            business_type: "perorangan",
+            npwp: "",
+            logoUrl: ""
+        },
+        {
+            refs: {
+                user_id: 'alice'
+            },
+            id: "alice-book-2",
+            name: "sample book alice 2",
+            initial: "SBA2",
+            email: "alice2@example.com",
+            business_type: "firma",
+            npwp: "123456-7890",
+            logoUrl: ""
+        },
+        {
+            refs: {
+                user_id: 'bruce'
+            },
+            id: "bruce-book-1",
+            name: "sample book Bruce 1",
+            initial: "SBB1",
+            email: "bruce@example.com",
+            business_type: "komanditer",
+            npwp: "09876545",
+            logoUrl: ""
+        },
+        {
+            refs: {
+                user_id: 'bruce'
+            },
+            id: "bruce-book-2",
+            name: "sample book Bruce 2",
+            initial: "SBB2",
+            email: "bruce2@example.com",
+            business_type: "perseroan",
+            npwp: "8888888",
+            logoUrl: ""
+        },
+        {
+            refs: {
+                user_id: 'chase'
+            },
+            id: "chase-book-1",
+            name: "sample book CHASE 1",
+            initial: "SBC1",
+            email: "chase@example.com",
+            business_type: "perorangan",
+            npwp: "",
+            logoUrl: ""
+        }
+    ];
+    // load the initData
+    await testEnv2.withSecurityRulesDisabled(async (context) => {
+        const initDb = context.firestore();
+        for (const initDoc of initDocs) {
+            await setDoc(doc(initDb, "books", initDoc.id), initDoc);
+        }
+    });
 });
 
 afterAll(async () => {
-    /*  
-        this function will be called ONCE when all tests are finished 
-        It should clear the firestore of all (if exist) data.
-        Then clean up the process to ensure all promise(s) are closed.
-    */
-   await testEnv.clearFirestore();
-   await testEnv.cleanup();
+    // closing
+    await testEnv2.clearFirestore();
+    await testEnv2.cleanup();
 });
 
-describe("firestore-account rules", () => {
+describe("testting firestore-book implementation", () => {
     /* 
-        this part is exclusive to test the firestore.rules 
+        testing the implementation of the firestore-book.js
     */
-    test("unauth user must not set accounts", async () => {
-        /*  
-            test unauthorized user must not add accounts
-            this will use the firestore.rules for /books/{bookId}/accounts/ path
-            then it will use setDoc and the test MUST assert to fail
-            NOTE: setDoc because we want to specify the account id as standard accounting id
+    test("getAllBooks implementation", async () => {
+        
+        /* 
+            this is the test to getAllBooks
         */
-        let unauthDb = testEnv.unauthenticatedContext().firestore();
-        // act: setDoc while unauthenticated
-        await assertFails(setDoc(doc(unauthDb,"books/alice-book1/accounts", "11001"), sampleAccountAlice));
+        let mockLoadingState = false;
+        let mockBooks = [];
+
+        // mock the set states
+        const mockSetLoading = jest.fn((x) => { mockLoadingState = x;});
+        const mockSetBooks = jest.fn((y) => {mockBooks = y});
+
+        // arrange : start getAllBooks
+        mockSetLoading(true);
+        const getBooksUid = "alice";
+
+        const unsub = await getAllBooks(getBooksUid, mockSetBooks, mockSetLoading, aliceDb);
+
+        // asserts:
+        // unsub NOT undefined:
+        expect(unsub).toBeDefined();
+        // expect isLoading state back to false
+        expect(mockLoadingState).toBe(false);
+        // expect succeeds to get all 2 books under user_id alice:
+        expect(mockBooks).toHaveLength(2);
+        // test the content of the getBooks
+        expect(mockBooks).toEqual(expect.arrayContaining([
+            {
+                refs: {
+                    user_id: 'alice'
+                },
+                id: "alice-book-1",
+                name: "sample book alice 1",
+                initial: "SBA1",
+                email: "alice@example.com",
+                business_type: "perorangan",
+                npwp: "",
+                logoUrl: ""
+            },
+            {
+                refs: {
+                    user_id: 'alice'
+                },
+                id: "alice-book-2",
+                name: "sample book alice 2",
+                initial: "SBA2",
+                email: "alice2@example.com",
+                business_type: "firma",
+                npwp: "123456-7890",
+                logoUrl: ""
+            }
+        ]));
+
+        // unsub
+        unsub();
     });
 });

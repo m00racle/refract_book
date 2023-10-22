@@ -1,4 +1,4 @@
-import { addDoc, collection, getDoc, setDoc, limit, onSnapshot, orderBy, query, where, doc, deleteDoc } from 'firebase/firestore';
+import { addDoc, collection, getDoc, setDoc, limit, onSnapshot, orderBy, query, where, doc, deleteDoc, getDocs } from 'firebase/firestore';
 import { db } from './firebase';
 import { deleteStorageFolder, uploadImageToStorage } from './storage';
 
@@ -62,24 +62,33 @@ export async function addBook(uid, bookData, dBase=db) {
 
 export async function getAllBooks (uid,  setBooks, setIsLoading, dBase=db) {
     // show all books related to specific uid.
+    setIsLoading(true);
     const booksQuery = query(collection(dBase, BOOK_COLLECTION),
     where("refs.user_id", "==", uid),
     orderBy("id", 'desc'));
-    
-    const unsubscribe = onSnapshot(booksQuery, async (snapshot) => {
-        let allBooks = [];
-        for (const documentSnapshot of snapshot.docs) {
-            const book = documentSnapshot.data();
-            allBooks.push({ ...book });
-        }
-        // console.log('allBooks: ', allBooks); //<- for DEBUG purposees
-        setIsLoading(true);
-        setBooks(allBooks);
+    const docSnaps = await getDocs(booksQuery).catch((err) => {
         setIsLoading(false);
+        throw err;
     });
-    // stop listening to database
-    setIsLoading(false);
-    return unsubscribe;
+
+    let initBooks = [];
+        for (const docSnap of docSnaps.docs) {
+            const docData = docSnap.data();
+            initBooks.push({ ...docData });
+        }
+        setBooks(initBooks);
+        const unsubscribe = onSnapshot(booksQuery, async (snapshot) => {
+            let allBooks = [];
+            for (const documentSnapshot of snapshot.docs) {
+                const book = documentSnapshot.data();
+                allBooks.push({ ...book });
+            }
+            // console.log('allBooks: ', allBooks); //<- for DEBUG purposees
+            setBooks(allBooks);
+        });
+        // stop listening to database
+        setIsLoading(false);
+        return unsubscribe;
 }
 
 export async function getBook (bookId, setBook, setIsLoadingBooks, dBase=db) {
