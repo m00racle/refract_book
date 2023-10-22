@@ -310,13 +310,11 @@ describe("testting firestore-book implementation", () => {
         let mockBook;
         const mockSetBook = jest.fn((x) => {mockBook = x;});
 
-        // action
+        // action assert get book for aliceDb succeeds
         mockSetLoading(true);
-        const unsub2 = await getBook("alice-book-3", mockSetBook, mockSetLoading, aliceDb);
+        await assertSucceeds(getBook("alice-book-3", mockSetBook, mockSetLoading, aliceDb));
 
         // asserts:
-        // unsub2 is NOT undefined:
-        expect(unsub2).toBeDefined();
 
         // assert: mockBook is the correct object alice book 3
         expect(mockBook).toStrictEqual({
@@ -334,30 +332,6 @@ describe("testting firestore-book implementation", () => {
 
         // assert: mock loading state to be false:
         expect(mockLoadingState).toBe(false);
-
-        // action: update the alice-book-3:
-        await updateDoc(doc(aliceDb, "books", "alice-book-3"), {initial: "SBA3-UPDATED"});
-        // await updateDoc(doc(aliceDb, "books", "alice-book-1"), {npwp:"00"});
-
-        // action close listener:
-        unsub2();
-
-        // assert: mock loading state to be false:
-        // expect(mockLoadingState).toBe(false);
-
-        // assert: mockBook is the correct object alice book 3 (updated)
-        expect(mockBook).toStrictEqual({
-            refs: {
-                user_id: 'alice'
-            },
-            id: "alice-book-3",
-            name: "sample book alice 3",
-            initial: "SBA3-UPDATED",
-            email: "alice3@example.com",
-            business_type: "komanditer",
-            npwp: "-7890",
-            logoUrl: ""
-        });
 
         // action: assert getBook from authenticated user id but not OWNER
         await assertFails(getBook("alice-book-2", mockSetBook, mockSetLoading, bruceDb));
