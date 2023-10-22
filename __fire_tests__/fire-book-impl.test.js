@@ -11,7 +11,7 @@ import {
 import {doc, 
     setDoc, 
     collection, 
-    addDoc, setLogLevel
+    addDoc, setLogLevel, updateDoc
 } from 'firebase/firestore';
 
 import { getAllBooks } from "../firebase/firestore-book";
@@ -19,6 +19,11 @@ import { getAllBooks } from "../firebase/firestore-book";
 let testEnv2;
 let aliceDb, bruceDb, chaseDb;
 let initDocs;
+let mockLoadingState, mockBooks;
+
+// mock the set states
+const mockSetLoading = jest.fn((x) => { mockLoadingState = x;});
+const mockSetBooks = jest.fn((y) => {mockBooks = y});
 
 beforeAll(async () => {
     setLogLevel('error');
@@ -120,13 +125,18 @@ describe("testting firestore-book implementation", () => {
         
         /* 
             this is the test to getAllBooks
+            the test divided into two steps
+            1. Reading all books from existing database set on beforeAll
+            2. Reading updated data and added data into database
+
+            Assert: only read all books related to user_id alice not other
         */
-        let mockLoadingState = false;
-        let mockBooks = [];
+        mockLoadingState = false;
+        mockBooks = [];
 
         // mock the set states
-        const mockSetLoading = jest.fn((x) => { mockLoadingState = x;});
-        const mockSetBooks = jest.fn((y) => {mockBooks = y});
+        // const mockSetLoading = jest.fn((x) => { mockLoadingState = x;});
+        // const mockSetBooks = jest.fn((y) => {mockBooks = y});
 
         // arrange : start getAllBooks
         mockSetLoading(true);
@@ -139,9 +149,9 @@ describe("testting firestore-book implementation", () => {
         expect(unsub).toBeDefined();
         // expect isLoading state back to false
         expect(mockLoadingState).toBe(false);
-        // expect succeeds to get all 2 books under user_id alice:
+        // expect get 3 of alice's docs (added one onSnapshot):
         expect(mockBooks).toHaveLength(2);
-        // test the content of the getBooks
+        // test the content of the getBooks now should added with alice-book-3 book.
         expect(mockBooks).toEqual(expect.arrayContaining([
             {
                 refs: {
@@ -169,7 +179,94 @@ describe("testting firestore-book implementation", () => {
             }
         ]));
 
+        // test detect database changes
+        // update existing alice book 1 data
+        await updateDoc(doc(aliceDb, "books", "alice-book-1"), {npwp:"00"});
+        // set new bruce book
+        await setDoc(doc(bruceDb, "books", "bruce-book-3"), {
+            refs: {
+                user_id: 'bruce'
+            },
+            id: "bruce-book-3",
+            name: "sample book Bruce 3",
+            initial: "SBB3",
+            email: "bruce3@example.com",
+            business_type: "firma",
+            npwp: "87878",
+            logoUrl: ""
+        });
+
+        // set new alice book
+        await setDoc(doc(aliceDb, "books", "alice-book-3"), {
+            refs: {
+                user_id: 'alice'
+            },
+            id: "alice-book-3",
+            name: "sample book alice 3",
+            initial: "SBA3",
+            email: "alice3@example.com",
+            business_type: "komanditer",
+            npwp: "-7890",
+            logoUrl: ""
+        });
+
+        // asserts:
+        // expect isLoading state back to false
+        expect(mockLoadingState).toBe(false);
+        // expect succeeds to get all 2 books under user_id alice:
+        expect(mockBooks).toHaveLength(3);
+        // test the content of the getBooks
+        expect(mockBooks).toEqual(expect.arrayContaining([
+            {
+                refs: {
+                    user_id: 'alice'
+                },
+                id: "alice-book-1",
+                name: "sample book alice 1",
+                initial: "SBA1",
+                email: "alice@example.com",
+                business_type: "perorangan",
+                npwp: "00",
+                logoUrl: ""
+            },
+            {
+                refs: {
+                    user_id: 'alice'
+                },
+                id: "alice-book-2",
+                name: "sample book alice 2",
+                initial: "SBA2",
+                email: "alice2@example.com",
+                business_type: "firma",
+                npwp: "123456-7890",
+                logoUrl: ""
+            },
+            {
+                refs: {
+                    user_id: 'alice'
+                },
+                id: "alice-book-3",
+                name: "sample book alice 3",
+                initial: "SBA3",
+                email: "alice3@example.com",
+                business_type: "komanditer",
+                npwp: "-7890",
+                logoUrl: ""
+            }
+        ]));
+
         // unsub
         unsub();
+    });
+
+    test("getAllBooks prevent unauth database reading", async () => {
+        /* 
+            test getAllBooks but using chaseDb (unauth context)
+        */
+        mockBooks=[];
+        mockLoadingState=false;
+        
+        // assert fails no return since it will throw error:
+        await assertFails(getAllBooks("alice", mockSetBooks, mockSetLoading, chaseDb));
     });
 });

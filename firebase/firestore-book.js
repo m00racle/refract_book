@@ -72,23 +72,23 @@ export async function getAllBooks (uid,  setBooks, setIsLoading, dBase=db) {
     });
 
     let initBooks = [];
-        for (const docSnap of docSnaps.docs) {
-            const docData = docSnap.data();
-            initBooks.push({ ...docData });
+    for (const docSnap of docSnaps.docs) {
+        const docData = docSnap.data();
+        initBooks.push({ ...docData });
+    }
+    setBooks(initBooks);
+    const unsubscribe = onSnapshot(booksQuery, async (snapshot) => {
+        let allBooks = [];
+        for (const documentSnapshot of snapshot.docs) {
+            const book = documentSnapshot.data();
+            allBooks.push({ ...book });
         }
-        setBooks(initBooks);
-        const unsubscribe = onSnapshot(booksQuery, async (snapshot) => {
-            let allBooks = [];
-            for (const documentSnapshot of snapshot.docs) {
-                const book = documentSnapshot.data();
-                allBooks.push({ ...book });
-            }
-            // console.log('allBooks: ', allBooks); //<- for DEBUG purposees
-            setBooks(allBooks);
-        });
-        // stop listening to database
-        setIsLoading(false);
-        return unsubscribe;
+        // console.log('allBooks: ', allBooks); //<- for DEBUG purposees
+        setBooks(allBooks);
+    });
+    // stop listening to database
+    setIsLoading(false);
+    return unsubscribe;
 }
 
 export async function getBook (bookId, setBook, setIsLoadingBooks, dBase=db) {
