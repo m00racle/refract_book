@@ -105,28 +105,14 @@ export async function getBook (bookId, setBook, setIsLoadingBooks, dBase=db) {
     });
     // pass the result to setBooks
     
-    if (docSnap.exists()) {
-        const bookData = docSnap.data();
-        setBook({ ...bookData });
-        // listen to the real time changes
-        const unsubscribe = onSnapshot(docRef, (docSnapshot) => {
-            if (docSnapshot.exists()) {
-                const updatedBookData = docSnapshot.data();
-                setBook({ ...updatedBookData });
-            } else {
-                // show no books
-                setBook(undefined);
-                setIsLoadingBooks(false);
-                return undefined;
-            }
-        })
+    if (docSnap.exists) {
+        // set the book on docSnap.data
+        setBook(docSnap.data());
         setIsLoadingBooks(false);
-        return unsubscribe;
     } else {
-        // handle book does not exist under specific uid
-        setIsLoadingBooks(false);
+        // set the book to be undefined
         setBook(undefined);
-        return undefined;
+        setIsLoadingBooks(false);
     }
 }
 

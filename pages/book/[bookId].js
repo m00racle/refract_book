@@ -41,22 +41,15 @@ export default function BookPage() {
 
     const fetchBook = async () => {
       setIsLoading(true);
-      const unsubscribe = await getBook(formattedBookId, setBook, setIsLoading).catch((err) => {
+      await getBook(formattedBookId, setBook, setIsLoading).catch((err) => {
         console.error("catch the throwed err from getBook function: ", err);
       });
       
-      if (unsubscribe === undefined) {
+      if (book === undefined) {
         // book does not exis or user don't have access
         router.push('/dashboard');
         return;
       }
-
-      return () => {
-        // unsubscribe from real-time updates when the component unmounts
-        if (unsubscribe) {
-          unsubscribe();
-        }
-      };
     };
 
     fetchBook();
