@@ -267,6 +267,11 @@ describe("testting firestore-book implementation", () => {
         mockLoadingState=false;
         
         // assert fails no return since it will throw error:
-        await assertFails(getAllBooks("alice", mockSetBooks, mockSetLoading, chaseDb));
+        // assert fails getting existing uid with no authenticated user:
+        await assertFails(getAllBooks("chase", mockSetBooks, mockSetLoading, chaseDb));
+        // assert fails getting existing uid but with wrong auth user_id:
+        await assertFails(getAllBooks("bruce", mockSetBooks, mockSetLoading, aliceDb));
+        // assert fails getting non existing uid:
+        await assertFails(getAllBooks("david", mockSetBooks, mockSetLoading, aliceDb));
     });
 });
