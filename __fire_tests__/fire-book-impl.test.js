@@ -14,7 +14,7 @@ import {doc,
     addDoc, setLogLevel, updateDoc
 } from 'firebase/firestore';
 
-import { getAllBooks } from "../firebase/firestore-book";
+import { addBook, getAllBooks } from "../firebase/firestore-book";
 
 let testEnv2;
 let aliceDb, bruceDb, chaseDb;
@@ -273,5 +273,33 @@ describe("testting firestore-book implementation", () => {
         await assertFails(getAllBooks("bruce", mockSetBooks, mockSetLoading, aliceDb));
         // assert fails getting non existing uid:
         await assertFails(getAllBooks("david", mockSetBooks, mockSetLoading, aliceDb));
+    });
+
+    test("addBook only allow authenticated and correct data formats", async () => {
+        /* 
+            test addBook to bruceDb (add another book)
+            only correct authenticated format will succeed
+        */
+        // arrange: preps addedData
+        const addedData = {
+            refs: {
+                user_id: "bruce"
+            },
+            name: "Bruce added Book",
+            initial: "BAB",
+            email: "bruce@example.com",
+            selectedCompanyType: "firma",
+            npwp: "",
+            logoFile: "testing/budget.png" //shouldn't be processed
+        };
+        const addUserId = "bruce"
+
+        // asserts:
+        // 1. addBook the data to aliceDb will failed
+        await assertFails(addBook(addUserId, addedData, aliceDb));
+        // 2. addBook to bruceDb must be success
+        await assertSucceeds(addBook(addUserId, addedData, bruceDb));
+        // 3. addBook using authenticated user must be fail.
+        await assertFails(addBook(addUserId, addedData, chaseDb));
     });
 });
