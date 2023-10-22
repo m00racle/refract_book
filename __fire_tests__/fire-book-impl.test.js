@@ -14,7 +14,8 @@ import {doc,
     addDoc, setLogLevel, updateDoc
 } from 'firebase/firestore';
 
-import { addBook, getAllBooks, getBook } from "../firebase/firestore-book";
+import { addBook, deleteBook, getAllBooks, getBook } from "../firebase/firestore-book";
+import { async } from "@firebase/util";
 
 let testEnv2;
 let aliceDb, bruceDb, chaseDb;
@@ -338,5 +339,18 @@ describe("testting firestore-book implementation", () => {
 
         // action: assert getBook from unathenticated id:
         await assertFails(getBook("alice-book-1", mockSetBook, mockSetLoading, chaseDb));
+    });
+
+    test("delete book implementation", async () => {
+        /* 
+            testing delete book implementation
+            deleteBook only allowed for authenticated owner of the book
+        */
+        // assert unauth user failed to delete book:
+        await assertFails(deleteBook("bruce-book-1", "bruce", chaseDb));
+        // assert non owner authenticated user failed to delete book:
+        await assertFails(deleteBook("bruce-book-1", "alice", aliceDb));
+        // assert authenticated owner to success on delete book:
+        await assertSucceeds(deleteBook("bruce-book-1", "bruce", bruceDb));
     });
 });
