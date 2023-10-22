@@ -14,7 +14,7 @@ import {doc,
     addDoc, setLogLevel, updateDoc
 } from 'firebase/firestore';
 
-import { addBook, getAllBooks } from "../firebase/firestore-book";
+import { addBook, getAllBooks, getBook } from "../firebase/firestore-book";
 
 let testEnv2;
 let aliceDb, bruceDb, chaseDb;
@@ -301,5 +301,68 @@ describe("testting firestore-book implementation", () => {
         await assertSucceeds(addBook(addUserId, addedData, bruceDb));
         // 3. addBook using authenticated user must be fail.
         await assertFails(addBook(addUserId, addedData, chaseDb));
+    });
+
+    test("getBook allow only authenticated correct bookId", async () => {
+        /* 
+            test getBook to aliceDb alice book 3
+        */
+        let mockBook;
+        const mockSetBook = jest.fn((x) => {mockBook = x;});
+
+        // action
+        mockSetLoading(true);
+        const unsub2 = await getBook("alice-book-3", mockSetBook, mockSetLoading, aliceDb);
+
+        // asserts:
+        // unsub2 is NOT undefined:
+        expect(unsub2).toBeDefined();
+
+        // assert: mockBook is the correct object alice book 3
+        expect(mockBook).toStrictEqual({
+            refs: {
+                user_id: 'alice'
+            },
+            id: "alice-book-3",
+            name: "sample book alice 3",
+            initial: "SBA3",
+            email: "alice3@example.com",
+            business_type: "komanditer",
+            npwp: "-7890",
+            logoUrl: ""
+        });
+
+        // assert: mock loading state to be false:
+        expect(mockLoadingState).toBe(false);
+
+        // action: update the alice-book-3:
+        await updateDoc(doc(aliceDb, "books", "alice-book-3"), {initial: "SBA3-UPDATED"});
+        // await updateDoc(doc(aliceDb, "books", "alice-book-1"), {npwp:"00"});
+
+        // action close listener:
+        unsub2();
+
+        // assert: mock loading state to be false:
+        // expect(mockLoadingState).toBe(false);
+
+        // assert: mockBook is the correct object alice book 3 (updated)
+        expect(mockBook).toStrictEqual({
+            refs: {
+                user_id: 'alice'
+            },
+            id: "alice-book-3",
+            name: "sample book alice 3",
+            initial: "SBA3-UPDATED",
+            email: "alice3@example.com",
+            business_type: "komanditer",
+            npwp: "-7890",
+            logoUrl: ""
+        });
+
+        // action: assert getBook from authenticated user id but not OWNER
+        await assertFails(getBook("alice-book-2", mockSetBook, mockSetLoading, bruceDb));
+
+        // action: assert getBook from unathenticated id:
+        await assertFails(getBook("alice-book-1", mockSetBook, mockSetLoading, chaseDb));
     });
 });
