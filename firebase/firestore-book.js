@@ -61,7 +61,19 @@ export async function addBook(uid, bookData, dBase=db) {
 }
 
 export async function getAllBooks (uid,  setBooks, setIsLoading, dBase=db) {
-    // show all books related to specific uid.
+    /* 
+        get all books for specific AUTHENTICATED user.
+        Then put the listener (onSnapshot) to detect any changes to the any of the book
+        that will affect the whole group of books
+
+        CAUTION: onSnapshot is listenenr and only listen for activities post activation
+
+        PARAMS:
+        uid : string = user id
+        setBooks : funciton = useState hook setter for book
+        setIsLoading : function = useState hook setter for isLoading
+        dBase : firestore = firestore instance (default db from firebase.js)
+    */
     setIsLoading(true);
     const booksQuery = query(collection(dBase, BOOK_COLLECTION),
     where("refs.user_id", "==", uid),
@@ -94,13 +106,24 @@ export async function getAllBooks (uid,  setBooks, setIsLoading, dBase=db) {
     return unsubscribe;
 }
 
-export async function getBook (bookId, setBook, setIsLoadingBooks, dBase=db) {
-    // show specific book
-    setIsLoadingBooks(true);
+export async function getBook (bookId, setBook, setIsLoading, dBase=db) {
+    /* 
+        get one specific book
+        if permission error throw error
+
+        CAUTION: if the book does not exist and the user somehow pass the auth
+        the getDoc will NOT throw error it will just return exist = false!
+
+        PARAMS:
+        bookId : String = book Id which called
+        setBook : function = useState hook setter function for book
+        setIsLoading : function = useState hook for isLoading
+    */
+    setIsLoading(true);
     const docRef = doc(dBase, BOOK_COLLECTION, bookId);
     const docSnap = await getDoc(docRef).catch((err) => {
-        // console.error("Error get a book: ", err);
-        setIsLoadingBooks(false);
+        // console.error("Error get a book: ", err); //<- for DEBUG
+        setIsLoading(false);
         throw err;
     });
     // pass the result to setBooks
@@ -108,11 +131,12 @@ export async function getBook (bookId, setBook, setIsLoadingBooks, dBase=db) {
     if (docSnap.exists) {
         // set the book on docSnap.data
         setBook(docSnap.data());
-        setIsLoadingBooks(false);
+        setIsLoading(false);
     } else {
+        // meaning the book does not exist (SEE CAUTION in block comment)
         // set the book to be undefined
         setBook(undefined);
-        setIsLoadingBooks(false);
+        setIsLoading(false);
     }
 }
 
@@ -122,6 +146,14 @@ export async function editBook () {
 }
 
 export async function deleteBook (bookId, uid, dBase=db) {
+    /* 
+        delete specific book 
+
+        PARAMS:
+        bookId : String = book id to be deleted
+        uid : String = user (authenticated) id that owned the soon to be deleted book
+        dBase : firestore = firestore instance authenticted for user id
+    */
     // fetch the book data
     const docRef = doc(dBase, BOOK_COLLECTION, bookId);
     const bookSnap = await getDoc(docRef).catch((err) => {
