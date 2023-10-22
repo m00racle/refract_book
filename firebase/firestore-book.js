@@ -71,12 +71,15 @@ export async function getAllBooks (uid,  setBooks, setIsLoading, dBase=db) {
         throw err;
     });
 
+    // getBooks if it was already in the database when listener onSnapshot has not being set:
     let initBooks = [];
     for (const docSnap of docSnaps.docs) {
         const docData = docSnap.data();
         initBooks.push({ ...docData });
     }
     setBooks(initBooks);
+
+    // set listeners for any updates that match the query (update, add, delete, set docs)
     const unsubscribe = onSnapshot(booksQuery, async (snapshot) => {
         let allBooks = [];
         for (const documentSnapshot of snapshot.docs) {
@@ -86,7 +89,7 @@ export async function getAllBooks (uid,  setBooks, setIsLoading, dBase=db) {
         // console.log('allBooks: ', allBooks); //<- for DEBUG purposees
         setBooks(allBooks);
     });
-    // stop listening to database
+    // return unsubscribe function to give ability for the caller to stop listening to database
     setIsLoading(false);
     return unsubscribe;
 }
