@@ -339,6 +339,12 @@ describe("testting firestore-book implementation", () => {
 
         // action: assert getBook from unathenticated id:
         await assertFails(getBook("alice-book-1", mockSetBook, mockSetLoading, chaseDb));
+
+        // assert: no doc must set book into indefined 
+        // NOTE: this one means error since the doc is not available:
+        await assertFails(getBook("alice-book-none", mockSetBook, mockSetLoading, aliceDb));
+        // console.log("mockbook undef: ", mockBook); //<- for DEBUG
+        expect(mockBook).toBeUndefined();
     });
 
     test("delete book implementation", async () => {
