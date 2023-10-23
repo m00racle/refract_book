@@ -123,6 +123,7 @@ export async function getBook (bookId, setBook, setIsLoading, dBase=db) {
     const docRef = doc(dBase, BOOK_COLLECTION, bookId);
     const docSnap = await getDoc(docRef).catch((err) => {
         // console.error("Error get a book: ", err); //<- for DEBUG
+        setBook(undefined);
         setIsLoading(false);
         throw err;
     });
