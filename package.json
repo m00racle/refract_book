@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "test": "jest --testPathPattern __tests__/ && jest --testPathPattern __fire_tests__/ --testEnvironment=node",
-    "test:ci": "jest --ci"
+    "test:ci": "jest --ci",
+    "test:fire": "jest --testPathPattern __fire_tests__/ --testEnvironment=node"
   },
   "keywords": [],
   "author": "",

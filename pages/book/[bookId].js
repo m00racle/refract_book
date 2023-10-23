@@ -41,22 +41,18 @@ export default function BookPage() {
 
     const fetchBook = async () => {
       setIsLoading(true);
-      const unsubscribe = await getBook(formattedBookId, setBook, setIsLoading).catch((err) => {
-        console.error("catch the throwed err from getBook function: ", err);
+      await getBook(formattedBookId, setBook, setIsLoading).catch((err) => {
+        // console.error("catch the throwed err from getBook function: ", err); // <- for DEBUG purposes
+        router.push('/dashboard');
+        // TODO: find a way to set the push message displayed on dashboard
       });
       
-      if (unsubscribe === undefined) {
+      if (!book) {
         // book does not exis or user don't have access
         router.push('/dashboard');
+        // TODO: find a way to set the push message displayed on dashboard
         return;
       }
-
-      return () => {
-        // unsubscribe from real-time updates when the component unmounts
-        if (unsubscribe) {
-          unsubscribe();
-        }
-      };
     };
 
     fetchBook();
@@ -65,7 +61,7 @@ export default function BookPage() {
   const RenderedContent = availableContents[content] || OverviewContent;
   
 
-  return ((!authUser || isLoading) ?
+  return ((!authUser || isLoading || !book) ?
     <CircularProgress color="inherit" sx={{ marginLeft: '50%', marginTop: '25%' }}/>
     :
     <>
