@@ -5,7 +5,6 @@ import {
 } from "@firebase/rules-unit-testing";
 import { readFileSync } from "node:fs";
 import { doc, getDoc, addDoc, collection, setLogLevel, setDoc, updateDoc, deleteField, deleteDoc } from "firebase/firestore";
-import { addBook, deleteBook, getAllBooks, getBook } from "../firebase/firestore-book";
 
 //  const MY_PROJECT_ID = "refract-book";
 let testEnv1; // <-- CAUTION: I always forget to define it here since it is global var!
