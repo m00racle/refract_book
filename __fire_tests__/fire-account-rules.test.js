@@ -11,13 +11,31 @@ import {
 import { readFileSync } from "node:fs";
 import {
     doc,
-    setLogLevel
+    setDoc,
+    addDoc,
+    setLogLevel,
+    collection
 } from "firebase/firestore";
 
 let testEnv3; // name of the test environment
 let aliceDb, bruceDb, chaseDb; // 3 database represent 3 types of user
-let addRef; // reference as the result of addAccount
+let addRef; // reference as the result of addAccount <- this is prone to edit
 let initDocs; // initial data for books
+
+let user_id = "";
+let book_id = "alice-book-2";
+
+let accData1 = {
+    name: "Cash",
+    type: "asset",
+    subtype: "current asset",
+    balance: 0,
+    refs: {
+        user_id,
+        book_id,
+    }
+};
+
 
 beforeAll(async() => {
     /* 
@@ -111,4 +129,38 @@ afterAll(async() => {
 
     await testEnv3.clearFirestore();
     await testEnv3.cleanup();
+});
+
+// function to define which sub accounts collection to target in the test
+const accountsCollection = function (db, bookId) {
+    const booksCollection = collection(db, "books");
+    const bookDocRef = doc(booksCollection, bookId);
+    return collection(bookDocRef, "accounts");
+};
+
+describe("testing firestore.rules for account sub collection", () => {
+    /* 
+        testing module for firestore.rules for account sub coolection
+        CRUD testing for account sub collection
+    */
+
+    test("test CREATE for unauthenticated chaseDb", async () => {
+        /* 
+            testing addDoc for chaseDb 
+            the test addDoc a account data called cash.
+            the book_id will be set to chase-book-1 which is correct
+            the user_id will be set to chase thus is correct
+            but chaseDb is unauth thus this will be wrong
+            But in this case the account will failed to be added
+        */
+        
+        user_id = "chase";
+        book_id = "chase-book-1";
+        // update the doc data:
+        accData1.refs.user_id = user_id;
+        accData1.refs.book_id = book_id;
+
+        // assert 
+        await assertFails(addDoc(accountsCollection(chaseDb, "chase-book-1"), accData1));
+    });
 });
