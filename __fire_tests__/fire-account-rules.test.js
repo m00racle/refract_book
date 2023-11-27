@@ -183,6 +183,25 @@ describe("testing firestore.rules for account sub collection", () => {
         await assertFails(addDoc(accountsCollection(bruceDb, book_id), accData1));
     });
 
+    test("test CREATE user id wrong but auth and correct book", async () => {
+        /* 
+            testing addDoc for bruceDb
+            db is bruceDb
+            user id is alice
+            book id is alice-book-2
+            this MUST BE FAIL
+        */
+        
+        user_id = "alice";
+        book_id = "alice-book-2";
+        // update the doc data
+        accData1.refs.user_id = user_id;
+        accData1.refs.book_id = book_id;
+
+        // assert
+        await assertFails(addDoc(accountsCollection(bruceDb, book_id), accData1));
+    });
+
     test("test CREATE correct auth user but wrong book id", async () => {
         /* 
             test the correct user

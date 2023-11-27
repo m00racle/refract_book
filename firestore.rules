@@ -4,8 +4,10 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /books/{bookId}/accounts/{accountId} {
-      // TODO: allow authenticated and designated owner of the book to set account (still failed)
-      allow create: if request.auth != null;
+      // TODO: allow authenticated and designated owner of the book to set account
+      allow create: if request.auth != null && 
+        // only allow if the request refs user id data is equal to the auth uid:
+        request.resource.data.refs.user_id == request.auth.uid;
 
       // others false
       allow read, update, delete: if false;
@@ -13,11 +15,13 @@ service cloud.firestore {
     
     match /books/{bookId} {
       // allow user to read if authenticated and the existing data refs user_id = uid
-      allow read, delete: if request.auth != null && resource.data.refs.user_id == request.auth.uid;
+      allow read, delete: if request.auth != null && 
+        resource.data.refs.user_id == request.auth.uid;
 
       // allow user to write (create, update, delete?) if authenticated
       // and the request (sent) data has refs.user_id = uid
-      allow create, update: if request.auth != null && request.resource.data.refs.user_id == request.auth.uid;
+      allow create, update: if request.auth != null && 
+        request.resource.data.refs.user_id == request.auth.uid;
     }
     
     // Deny access to other collections and documents
