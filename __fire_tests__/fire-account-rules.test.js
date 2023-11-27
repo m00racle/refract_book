@@ -164,7 +164,7 @@ describe("testing firestore.rules for account sub collection", () => {
         await assertFails(addDoc(accountsCollection(chaseDb, "chase-book-1"), accData1));
     });
 
-    test("test CREATE for auth bruceDb failed to addDoc", async () => {
+    test("test CREATE for auth wrong user, correct book id", async () => {
         /* 
             testing addDoc for bruceDb
             the db is bruceDb which is authenticated
@@ -181,5 +181,42 @@ describe("testing firestore.rules for account sub collection", () => {
 
         // assert
         await assertFails(addDoc(accountsCollection(bruceDb, book_id), accData1));
+    });
+
+    test("test CREATE correct auth user but wrong book id", async () => {
+        /* 
+            test the correct user
+            authenticated user
+            but wrong book_id (the refs book_id alice-book-1 )
+            the addDoc reference use alice-book-2
+            MUST ALSO FAILED
+        */
+        
+        user_id = "alice";
+        book_id = "alice-book-1";
+        // update the doc data
+        accData1.refs.user_id = user_id;
+        accData1.refs.book_id = book_id;
+
+        // assert
+        await assertFails(addDoc(accountsCollection(aliceDb, "alice-book-2"), accData1));
+    });
+
+    test("test CREATE correct auth user and book", async () => {
+        /* 
+            test correct user and book
+            user alice
+            book alice-book-2
+        */
+        
+        user_id = "alice";
+        book_id = "alice-book-2";
+        // update the doc data
+        accData1.refs.user_id = user_id;
+        accData1.refs.book_id = book_id;
+
+        // action
+        addRef = await addDoc(accountsCollection(aliceDb, book_id), accData1);
+        assertSucceeds(addRef);
     });
 });
