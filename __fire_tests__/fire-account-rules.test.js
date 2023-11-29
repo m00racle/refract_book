@@ -262,4 +262,24 @@ describe("testing firestore.rules for account sub collection", () => {
         // assert
         await assertFails(setDoc(docRef, accData1));
     });
+
+    test("test setDoc to CREATE account on auth user but not the owner", async () => {
+        /* 
+            test auth user but not the owner of the book
+            database bruceDb (authenticated db)
+            user bruce
+            book alice-book-2
+        */
+        
+        accData1.id = acc_id;
+        user_id = "bruce";
+        book_id = "alice-book-2";
+        accData1.refs.user_id = user_id;
+        accData1.refs.book_id = book_id;
+
+        const docRef = doc(bruceDb, "books", book_id, "accounts", acc_id.toString());
+
+        // assert
+        await assertFails(setDoc(docRef, accData1));
+    });
 });
