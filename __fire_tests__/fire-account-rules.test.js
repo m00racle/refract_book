@@ -26,6 +26,7 @@ let user_id = "";
 let book_id = "alice-book-2";
 
 let accData1 = {
+    id: "",
     name: "Cash",
     type: "asset",
     subtype: "current asset",
@@ -35,6 +36,9 @@ let accData1 = {
         book_id,
     }
 };
+
+// added acc_id to be used later on test
+const acc_id = 31001;
 
 
 beforeAll(async() => {
@@ -237,5 +241,25 @@ describe("testing firestore.rules for account sub collection", () => {
         // action
         addRef = await addDoc(accountsCollection(aliceDb, book_id), accData1);
         assertSucceeds(addRef);
+    });
+
+    test("test setDoc to CREATE account using unauth user", async () => {
+        /* 
+            test unauth user
+            database chaseDb (unauthenticated)
+            user chase
+            book chase-book-1
+        */
+        
+        accData1.id = acc_id;
+        user_id = "chase";
+        book_id = "chase-book-1";
+        accData1.refs.user_id = user_id;
+        accData1.refs.book_id = book_id;
+        
+        const docRef = doc(chaseDb, "books", book_id, "accounts", acc_id.toString());
+
+        // assert
+        await assertFails(setDoc(docRef, accData1));
     });
 });
