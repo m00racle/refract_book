@@ -342,4 +342,109 @@ describe("testing firestore.rules for account sub collection", () => {
         // assert
         await assertSucceeds(setDoc(docRef, accData1));
     });
+
+    test("test setDoc to UPDATE account using unauth user", async () => {
+        /* 
+            test unauth user
+            database chaseDb (unauthenticated)
+            user chase
+            book chase-book-1
+        */
+        
+        accData1.id = acc_id;
+        user_id = "chase";
+        book_id = "chase-book-1";
+        accData1.refs.user_id = user_id;
+        accData1.refs.book_id = book_id;
+        accData1.name = "Owner Equity";
+        
+        const docRef = doc(chaseDb, "books", book_id, "accounts", acc_id.toString());
+
+        // assert
+        await assertFails(setDoc(docRef, accData1));
+    });
+
+    test("test setDoc to UPDATE account on auth user but not the owner", async () => {
+        /* 
+            test auth user but not the owner of the book
+            database bruceDb (authenticated db)
+            user bruce
+            book alice-book-2
+        */
+        
+        accData1.id = acc_id;
+        user_id = "bruce";
+        book_id = "alice-book-2";
+        accData1.refs.user_id = user_id;
+        accData1.refs.book_id = book_id;
+        accData1.name = "Owner Equity";
+
+        const docRef = doc(bruceDb, "books", book_id, "accounts", acc_id.toString());
+
+        // assert
+        await assertFails(setDoc(docRef, accData1));
+    });
+
+    test("test setDoc to UPDATE account for user id wrong but auth and correct book", async () => {
+        /* 
+            test auth user owner but wrong book
+            database bruceDb
+            user alice
+            book alice-book-2
+        */
+        
+        accData1.id = acc_id;
+        user_id = "alice";
+        book_id = "alice-book-2";
+        accData1.refs.user_id = user_id;
+        accData1.refs.book_id = book_id;
+        accData1.name = "Owner Equity";
+
+        const docRef = doc(bruceDb, "books", book_id, "accounts", acc_id.toString());
+
+        // assert
+        await assertFails(setDoc(docRef, accData1));
+    });
+
+    test("test setDoc UPDATE correct auth user but wrong book id", async () => {
+        /* 
+            test correct user but wrong book
+            database aliceDb
+            user alice
+            book alice-book-1
+        */
+        
+        accData1.id = acc_id;
+        user_id = "alice";
+        book_id = "alice-book-1";
+        accData1.refs.user_id = user_id;
+        accData1.refs.book_id = book_id;
+        accData1.name = "Owner Equity";
+
+        const docRef = doc(aliceDb, "books", "alice-book-2", "accounts", acc_id.toString());
+
+        // assert
+        await assertFails(setDoc(docRef, accData1));
+    });
+
+    test("test setDoc UPDATE correct auth user and book", async () => {
+        /* 
+            test correct owner and book -> success
+            database aliceDb
+            user alice
+            book alice-book-2
+        */
+        
+        accData1.id = acc_id;
+        user_id = "alice";
+        book_id = "alice-book-2";
+        accData1.refs.user_id = user_id;
+        accData1.refs.book_id = book_id;
+        accData1.name = "Owner Equity";
+
+        const docRef = doc(aliceDb, "books", "alice-book-2", "accounts", acc_id.toString());
+
+        // assert
+        await assertSucceeds(setDoc(docRef, accData1));
+    });
 });
