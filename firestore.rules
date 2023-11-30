@@ -10,7 +10,7 @@ service cloud.firestore {
 
     match /books/{bookId}/accounts/{accountId} {
       // allow authenticated and designated owner of the book to set account
-      allow create: if request.auth != null && 
+      allow create, update: if request.auth != null && 
         // only allow if the request refs user id data is equal to the auth uid:
         request.resource.data.refs.user_id == request.auth.uid &&
         // only allow if the request auth.uid is the user_id of the book
@@ -19,7 +19,7 @@ service cloud.firestore {
         bookData(bookId).id == request.resource.data.refs.book_id;
 
       // others false
-      allow read, update, delete: if false;
+      allow read, delete: if false;
     }
     
     match /books/{bookId} {
