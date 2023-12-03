@@ -100,18 +100,6 @@ beforeAll(async() => {
         },
         {
             refs: {
-                user_id: 'bruce'
-            },
-            id: "bruce-book-1",
-            name: "sample book Bruce 1",
-            initial: "SBB1",
-            email: "bruce@example.com",
-            business_type: "komanditer",
-            npwp: "09876545",
-            logoUrl: ""
-        },
-        {
-            refs: {
                 user_id: 'chase'
             },
             id: "chase-book-1",
