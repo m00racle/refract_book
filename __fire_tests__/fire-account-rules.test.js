@@ -464,9 +464,6 @@ describe("testing firestore.rules for account sub collection", () => {
             book chase-book-1
         */
         
-        user_id = "chase";
-        book_id = "chase-book-1";
-                
         // SET document reference to the acc_id:
         const docRef = doc(chaseDb, "books", book_id, "accounts", acc_id.toString());
 
@@ -482,9 +479,6 @@ describe("testing firestore.rules for account sub collection", () => {
             book alice-book-2
         */
         
-        user_id = "bruce";
-        book_id = "alice-book-2";
-
         // set the document reference to acc_id:
         const docRef = doc(bruceDb, "books", book_id, "accounts", acc_id.toString());
 
@@ -500,9 +494,6 @@ describe("testing firestore.rules for account sub collection", () => {
             book alice-book-2
         */
         
-        user_id = "alice";
-        book_id = "alice-book-2";
-        
         // set reference to doc
         const docRef = doc(bruceDb, "books", book_id, "accounts", acc_id.toString());
 
@@ -510,7 +501,7 @@ describe("testing firestore.rules for account sub collection", () => {
         await assertFails(updateDoc(docRef, updateData));
     });
 
-    test("test updateDoc UPDATE correct auth user but wrong book id", async () => {
+    test("test updateDoc UPDATE correct auth user but nonexist account in the book", async () => {
         /* 
             test correct user but wrong book
             database aliceDb
@@ -518,10 +509,7 @@ describe("testing firestore.rules for account sub collection", () => {
             book alice-book-1
         */
         
-        user_id = "alice";
-        book_id = "alice-book-1";
-        
-        const docRef = doc(aliceDb, "books", "alice-book-2", "accounts", acc_id.toString());
+        const docRef = doc(aliceDb, "books", "alice-book-1", "accounts", acc_id.toString());
 
         // assert
         await assertFails(updateDoc(docRef, updateData));
@@ -534,9 +522,6 @@ describe("testing firestore.rules for account sub collection", () => {
             user alice
             book alice-book-2
         */
-        
-        user_id = "alice";
-        book_id = "alice-book-2";
 
         const docRef = doc(aliceDb, "books", "alice-book-2", "accounts", acc_id.toString());
 
