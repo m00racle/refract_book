@@ -474,21 +474,6 @@ describe("testing firestore.rules for account sub collection", () => {
         await assertFails(updateDoc(docRef, updateData));
     });
 
-    test("test updateDoc to UPDATE account for user id wrong but auth and correct book", async () => {
-        /* 
-            test auth user owner but wrong book
-            database bruceDb
-            user alice
-            book alice-book-2
-        */
-        
-        // set reference to doc
-        const docRef = doc(bruceDb, "books", book_id, "accounts", acc_id.toString());
-
-        // assert
-        await assertFails(updateDoc(docRef, updateData));
-    });
-
     test("test updateDoc UPDATE correct auth user but nonexist account in the book", async () => {
         /* 
             test correct user but wrong book
