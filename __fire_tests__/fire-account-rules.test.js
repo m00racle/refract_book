@@ -15,7 +15,8 @@ import {
     addDoc,
     setLogLevel,
     collection,
-    updateDoc
+    updateDoc,
+    getDoc
 } from "firebase/firestore";
 
 let testEnv3; // name of the test environment
@@ -500,5 +501,65 @@ describe("testing firestore.rules for account sub collection", () => {
 
         // assert
         await assertSucceeds(updateDoc(docRef, updateData));
+    });
+
+    test("test getDoc from unauth user", async () => {
+        /* 
+            test unauth user
+            database chaseDb (unauthenticated)
+            user chase
+            book alice-book-2
+        */
+        
+        // set the document reference
+        const docRef = doc(chaseDb, "books", "alice-book-2", "accounts", acc_id.toString());
+
+        // assert
+        await assertFails(getDoc(docRef));
+    });
+
+    test("test getDoc for authenticated user but not owner", async () => {
+        /* 
+            test auth user but not owner
+            database bruceDb
+            user bruce
+            book alice-book-2
+        */
+        
+        // set the document reference
+        const docRef = doc(bruceDb, "books", "alice-book-2", "accounts", acc_id.toString());
+
+        // assert
+        await assertFails(getDoc(docRef));
+    });
+
+    test("test getDoc for authenticated owner but wrong book", async () => {
+        /* 
+            test auth owber but wrong book
+            database aliceDb
+            user alice
+            book alice-book-1
+        */
+        
+        // set the document reference
+        const docRef = doc(aliceDb, "books", "alice-book-1", "accounts", acc_id.toString());
+
+        // assert
+        await assertFails(getDoc(docRef));
+    });
+
+    test("test getDoc for authenticated owner and correct book", async () => {
+        /* 
+            test auth owner and correct books
+            database aliceDb
+            user alice
+            book alice-book-2
+        */
+        
+        // set the document reference
+        const docRef = doc(aliceDb, "books", "alice-book-2", "accounts", acc_id.toString());
+
+        // assert
+        await assertSucceeds(getDoc(docRef));
     });
 });
