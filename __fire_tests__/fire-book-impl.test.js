@@ -8,14 +8,14 @@ import {
     assertSucceeds,
     initializeTestEnvironment
 } from "@firebase/rules-unit-testing";
-import {doc, 
+import {
+    doc, 
     setDoc, 
-    collection, 
-    addDoc, setLogLevel, updateDoc
+    setLogLevel, 
+    updateDoc
 } from 'firebase/firestore';
 
 import { addBook, deleteBook, getAllBooks, getBook } from "../firebase/firestore-book";
-import { async } from "@firebase/util";
 
 let testEnv2;
 let aliceDb, bruceDb, chaseDb;

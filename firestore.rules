@@ -3,21 +3,36 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /books/{bookId} {
-      // allow user to read if authenticated and the existing data refs user_id = uid
-      allow read, delete: if request.auth != null && resource.data.refs.user_id == request.auth.uid;
-
-      // allow user to write (create, update, delete?) if authenticated
-      // and the request (sent) data has refs.user_id = uid
-      allow create, update: if request.auth != null && request.resource.data.refs.user_id == request.auth.uid;
+    // function to fetch the bookData by providing bookId as argument :
+    function bookData(bookId) {
+      return get(/databases/$(database)/documents/books/$(bookId)).data
     }
 
     match /books/{bookId}/accounts/{accountId} {
-      // TODO: allow authenticated and designated owner of the book to set account (still failed)
-      allow create: if request.auth != null;
+      // allow authenticated and designated owner of the book to set account
+      allow create, update: if request.auth != null && 
+        // only allow if the request refs user id data is equal to the auth uid:
+        request.resource.data.refs.user_id == request.auth.uid &&
+        // only allow if the request auth.uid is the user_id of the book
+        bookData(bookId).refs.user_id == request.auth.uid &&
+        // only allow if the request refs.book_id is the id of the book parent
+        bookData(bookId).id == request.resource.data.refs.book_id;
 
-      // others false
-      allow read, update, delete: if false;
+        // allow read when the user id is the same in the book referred user_id
+        allow read, delete: if bookData(bookId).refs.user_id == request.auth.uid &&
+        // if it was called from the correct book
+        bookData(bookId).id == resource.data.refs.book_id;
+    }
+    
+    match /books/{bookId} {
+      // allow user to read if authenticated and the existing data refs user_id = uid
+      allow read, delete: if request.auth != null && 
+        resource.data.refs.user_id == request.auth.uid;
+
+      // allow user to write (create, update, delete?) if authenticated
+      // and the request (sent) data has refs.user_id = uid
+      allow create, update: if request.auth != null && 
+        request.resource.data.refs.user_id == request.auth.uid;
     }
     
     // Deny access to other collections and documents
