@@ -16,7 +16,9 @@ import {
     setLogLevel,
     collection,
     updateDoc,
-    getDoc
+    getDoc,
+    deleteField,
+    deleteDoc
 } from "firebase/firestore";
 
 let testEnv3; // name of the test environment
@@ -561,5 +563,77 @@ describe("testing firestore.rules for account sub collection", () => {
 
         // assert
         await assertSucceeds(getDoc(docRef));
+    });
+
+    test("delete field and doc by unauth user", async () => {
+        /* 
+            test delete field refs.absolute
+            test delete doc
+            databse chaseDb
+            book alice-book-2
+        */
+        
+        // set doc reference
+        const docRef = doc(chaseDb, "books", "alice-book-2", "accounts", acc_id.toString());
+
+        // assert
+        await assertFails(updateDoc(docRef, {
+            "refs.absolute": deleteField()
+        }));
+        await assertFails(deleteDoc(docRef));
+    });
+
+    test("delete field and doc by auth user but not owner", async () => {
+        /* 
+            test delete field refs.absolute 
+            test delete doc
+            database bruceDb
+            book alice-book-2
+        */
+        
+        // set doc reference
+        const docRef = doc(bruceDb, "books", "alice-book-2", "accounts", acc_id.toString());
+
+        // assert
+        await assertFails(updateDoc(docRef, {
+            "refs.absolute": deleteField()
+        }));
+        await assertFails(deleteDoc(docRef));
+    });
+
+    test("delete field and doc by auth owner but wrong book", async () => {
+        /* 
+            test delete field refs.absolute
+            test delete doc
+            database aliceDb
+            book alice-book-1
+        */
+        
+        // set doc reference
+        const docRef = doc(aliceDb, "books", "alice-book-1", "accounts", acc_id.toString());
+
+        // assert
+        await assertFails(updateDoc(docRef, {
+            "refs.absolute": deleteField()
+        }));
+        await assertFails(deleteDoc(docRef));
+    });
+
+    test("delete field and doc by auth owner and correct book", async () => {
+        /* 
+            test delete field refs.absolute
+            test delete doc
+            database aliceDb
+            book alice-book-2
+        */
+        
+        // set doc reference
+        const docRef = doc(aliceDb, "books", "alice-book-2", "accounts", acc_id.toString());
+
+        // assert
+        await assertSucceeds(updateDoc(docRef, {
+            "refs.absolute": deleteField()
+        }));
+        await assertSucceeds(deleteDoc(docRef));
     });
 });
