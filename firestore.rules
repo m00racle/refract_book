@@ -19,12 +19,9 @@ service cloud.firestore {
         bookData(bookId).id == request.resource.data.refs.book_id;
 
         // allow read when the user id is the same in the book referred user_id
-        allow read: if bookData(bookId).refs.user_id == request.auth.uid &&
+        allow read, delete: if bookData(bookId).refs.user_id == request.auth.uid &&
         // if it was called from the correct book
         bookData(bookId).id == resource.data.refs.book_id;
-
-      // others false
-      allow delete: if false;
     }
     
     match /books/{bookId} {
